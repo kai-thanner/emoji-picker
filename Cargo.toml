@@ -1,0 +1,12 @@
+[package]
+name = "emoji-picker"
+version = "1.0.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+gtk = { package = "gtk4", version = "0.8" }
+glib = "0.19"
+dirs = "4"
+itertools = "0.12"
