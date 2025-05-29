@@ -1,4 +1,4 @@
-# 👻 Emoji-Picker
+# 👻 Emoji-Picker v1.0.0
 
 Ein schneller, einfacher Emoji-Picker für Linux (GTK-basiert, Rust).
 
