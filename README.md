@@ -4,13 +4,13 @@ Ein schneller, einfacher Emoji-Picker für Linux (GTK-basiert, Rust).
 
 ---
 
-## 📈 Features
+## 💡 Features
 
-* ✨ Schnelle Live-Suche nach Emojis via Stichworte
-* 📂 Kategorien über Tabs organisiert
-* 📋 Klick oder Enter kopiert Emoji direkt in Zwischenablage
-* 🔝 Einfache Konfiguration über settings.ini
-* 🍀 Aufrufbar per Tastenkombination (z. B. Super+.)
+* 🔎 Schnelle Live-Suche nach Emojis via Stichworte
+* 📑 Kategorien über Tabs organisiert
+* 📥 Klick oder Enter kopiert Emoji direkt in Zwischenablage
+* ⚙️ Einfache Konfiguration über settings.ini
+* ⌨️ Aufrufbar per Tastenkombination (z. B. Super+.)
 * ✅ Erstkonfiguration beim ersten Start
 * 🚀 Leichtgewichtig & ohne unnötige Abhängigkeiten
 
@@ -24,7 +24,7 @@ Ein schneller, einfacher Emoji-Picker für Linux (GTK-basiert, Rust).
 sudo apt install ./emoji-picker_1.0.0_amd64.deb
 ```
 
-### Manuell kompilieren:
+### 💻 Manuell kompilieren:
 
 ```bash
 git clone https://github.com/kai-thanner/emoji-picker.git
@@ -51,7 +51,7 @@ Die Werte lassen sich dort jederzeit anpassen.
 
 ---
 
-## ⌨ Tastenkombination einrichten
+## ⌨️ Tastenkombination einrichten
 
 Falls beim ersten Start keine Tastenkombination gesetzt wurde:
 getestet unter: Linux Mint 22.1 Cinnamon
@@ -64,7 +64,7 @@ Diese legt unter Cinnamon die Kombination Super+. für den Emoji-Picker an.
 
 ---
 
-## 🌍 Speicherorte
+## 📂 Speicherorte
 
 | Datei/Ordner                                    | Beschreibung                    |
 | ----------------------------------------------- | ------------------------------- |
@@ -76,7 +76,7 @@ Diese legt unter Cinnamon die Kombination Super+. für den Emoji-Picker an.
 
 ---
 
-## ✏️ Lizenz
+## 👨‍⚖️ Lizenz
 
 Dieses Projekt steht unter der MIT-Lizenz. Siehe [LICENSE](LICENSE).
 
