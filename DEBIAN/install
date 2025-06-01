@@ -1,4 +1,4 @@
 target/release/emoji-picker                     usr/bin/
 assets/emoji-picker.desktop                     usr/share/applications/
 assets/emoji-picker.png                         usr/share/icons/hicolor/256x256/apps/
-assets/config/emoji-picker/*.list                     etc/skel/.config/emoji-picker/
+assets/config/emoji-picker/*.list               etc/skel/.config/emoji-picker/
