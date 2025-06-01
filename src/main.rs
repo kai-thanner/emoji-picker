@@ -96,7 +96,7 @@ fn main() {
             ("symbole.list", "✅"),
             ("smileys.list", "😄"),
             ("peoples.list", "👨"),
-            ("tiere.list", "🐰"),
+            ("animals.list", "🐰"),
             ("gestures.list", "👋"),
             ("clothing.list", "👕"),
             ("travel.list", "✈️"),
