@@ -2,6 +2,15 @@
 
 Ein schneller, einfacher Emoji-Picker für Linux (GTK-basiert, Rust).
 
+## 📸 Screenshots
+
+### Hauptfenster
+
+![Emoji Picker GUI](screenshots/emoji-picker1.png)
+
+### Suchfunktion aktiv
+
+![Suche aktiv](screenshots/emoji-picker2.png)
 ---
 
 ## 💡 Features
