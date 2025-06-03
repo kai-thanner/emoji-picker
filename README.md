@@ -2,17 +2,6 @@
 
 Ein schneller, einfacher Emoji-Picker für Linux (GTK-basiert, Rust).
 
-## 📸 Screenshots
-
-### Hauptfenster
-
-![Emoji Picker GUI](screenshots/emoji-picker1.png)
-
-### Suchfunktion aktiv
-
-![Suche aktiv](screenshots/emoji-picker2.png)
----
-
 ## 💡 Features
 
 * 🔎 Schnelle Live-Suche nach Emojis via Stichworte
@@ -22,6 +11,18 @@ Ein schneller, einfacher Emoji-Picker für Linux (GTK-basiert, Rust).
 * ⌨️ Aufrufbar per Tastenkombination (z. B. Super+.)
 * ✅ Erstkonfiguration beim ersten Start
 * 🚀 Leichtgewichtig & ohne unnötige Abhängigkeiten
+
+---
+
+## 📸 Screenshots
+
+### Hauptfenster
+
+![Emoji Picker GUI](screenshots/emoji-picker1.png)
+
+### Suchfunktion aktiv
+
+![Suche aktiv](screenshots/emoji-picker2.png)
 
 ---
 
@@ -75,13 +76,13 @@ Diese legt unter Cinnamon die Kombination Super+. für den Emoji-Picker an.
 
 ## 📂 Speicherorte
 
-| Datei/Ordner                                    | Beschreibung                    |
-| ----------------------------------------------- | ------------------------------- |
-| `/usr/bin/emoji-picker`                         | Ausführbare Datei               |
-| `/usr/share/applications/emoji-picker.desktop`  | Eintrag im Startmenü            |
-| `/usr/share/icons/hicolor/.../emoji-picker.png` | Icon                            |
-| `/etc/skel/.config/emoji-picker/`               | .list-Dateien als Vorlage       |
-| `~/.config/emoji-picker/`                       | Nutzerdaten (Symbole, Settings) |
+| Datei/Ordner                                             | Beschreibung                    |
+| -------------------------------------------------------- | ------------------------------- |
+| `/usr/bin/emoji-picker`                                  | Ausführbare Datei               |
+| `/usr/share/applications/emoji-picker.desktop`           | Eintrag im Startmenü            |
+| `/usr/share/icons/hicolor/256x256/apps/emoji-picker.png` | Icon                            |
+| `/etc/skel/.config/emoji-picker/`                        | .list-Dateien als Vorlage       |
+| `~/.config/emoji-picker/`                                | Nutzerdaten (Symbole, Settings) |
 
 ---
 
