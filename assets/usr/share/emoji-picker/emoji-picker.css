@@ -1,0 +1,32 @@
+/* Suchfeld */
+entry.search-entry {
+    margin: 8px 12px 0 12px;        /* oben rechts unten links → Abstand zum Fenster */
+    padding: 4px 8px;               /* innen: vertikal/horizontal */
+    border-radius: 6px;             /* leicht abgerundet, systemfreundlich */
+    font-size: 18px;                /* Schrift grösse */
+}
+
+/* Emoji-Buttons */
+button.emoji {
+    padding: 6px;                   /* Button grösse */
+    margin: 2px;                    /* Button abstand */
+    border-radius: 12px;            /* Rundung der Buttons */
+    background-color: transparent;
+    transition: background-color 300ms ease-in-out; /* Hintergrund beim drüberhovern */
+}
+
+button.emoji:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Kategorie-Tabs */
+label.kategorie-tab {
+    padding: 4px 6px;
+    border-radius: 6px;
+    margin: 2px;
+    transition: background-color 150ms;
+}
+
+label.kategorie-tab:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}

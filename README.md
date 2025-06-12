@@ -1,4 +1,4 @@
-# 👻 Emoji-Picker v1.0.0
+# 👻 Emoji-Picker v1.0.1
 
 Ein schneller, einfacher Emoji-Picker für Linux (GTK-basiert, Rust).
 
@@ -31,7 +31,7 @@ Ein schneller, einfacher Emoji-Picker für Linux (GTK-basiert, Rust).
 ### .deb-Paket (empfohlen für Debian/Mint/Ubuntu):
 
 ```bash
-sudo apt install ./emoji-picker_1.0.0_amd64.deb
+sudo apt install ./emoji-picker_1.0.1_amd64.deb
 ```
 
 ### 💻 Manuell kompilieren:
@@ -67,7 +67,7 @@ Falls beim ersten Start keine Tastenkombination gesetzt wurde:
 getestet unter: Linux Mint 22.1 Cinnamon
 
 ```bash
-emoji-picker --setup-shortcut
+emoji-picker --setup
 ```
 
 Diese legt unter Cinnamon die Kombination Super+. für den Emoji-Picker an.
@@ -80,8 +80,9 @@ Diese legt unter Cinnamon die Kombination Super+. für den Emoji-Picker an.
 | -------------------------------------------------------- | ------------------------------- |
 | `/usr/bin/emoji-picker`                                  | Ausführbare Datei               |
 | `/usr/share/applications/emoji-picker.desktop`           | Eintrag im Startmenü            |
-| `/usr/share/icons/hicolor/256x256/apps/emoji-picker.png` | Icon                            |
-| `/etc/skel/.config/emoji-picker/`                        | .list-Dateien als Vorlage       |
+| `/usr/share/icons/hicolor/_x_/apps/emoji-picker.png` 	   | Icons 16x16 - 512x512           |
+| `/usr/share/emoji-picker/`                               | .css Datei für GUI-Fenster      |
+| `/etc/emoji-picker/`                                     | .list-Dateien als Vorlage       |
 | `~/.config/emoji-picker/`                                | Nutzerdaten (Symbole, Settings) |
 
 ---

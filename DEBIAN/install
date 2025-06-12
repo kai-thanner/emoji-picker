@@ -1,4 +1,11 @@
-target/release/emoji-picker                     usr/bin/
-assets/emoji-picker.desktop                     usr/share/applications/
-assets/emoji-picker.png                         usr/share/icons/hicolor/256x256/apps/
-assets/config/emoji-picker/*.list               etc/skel/.config/emoji-picker/
+assets/usr/bin/emoji-picker                    							 	/usr/bin/
+assets/usr/share/applications/emoji-picker.desktop                     		/usr/share/applications/
+assets/usr/share/emoji-picker/emoji-picker.css                   			/usr/share/emoji-picker/
+assets/usr/share/icons/hicolor/16x16/apps/emoji-picker.png                	/usr/share/icons/hicolor/16x16/apps/
+assets/usr/share/icons/hicolor/32x32/apps/emoji-picker.png               	/usr/share/icons/hicolor/32x32/apps/
+assets/usr/share/icons/hicolor/48x48/apps/emoji-picker.png                	/usr/share/icons/hicolor/48x48/apps/
+assets/usr/share/icons/hicolor/64x64/apps/emoji-picker.png                	/usr/share/icons/hicolor/64x64/apps/
+assets/usr/share/icons/hicolor/128x128/apps/emoji-picker.png                /usr/share/icons/hicolor/128x128/apps/
+assets/usr/share/icons/hicolor/256x256/apps/emoji-picker.png                /usr/share/icons/hicolor/256x256/apps/
+assets/usr/share/icons/hicolor/512x512/apps/emoji-picker.png                /usr/share/icons/hicolor/512x512/apps/
+assets/etc/emoji-picker/*.list               								/etc/emoji-picker/

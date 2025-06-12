@@ -1,11 +1,24 @@
-use gtk::prelude::*;
-use gtk::{Application, ApplicationWindow, Box as GtkBox, Entry, Label, Notebook, Orientation, PolicyType, ScrolledWindow, Button, Grid, Stack, EventControllerKey, CssProvider, STYLE_PROVIDER_PRIORITY_APPLICATION};
-use gtk::gdk::{self, Clipboard};
-use std::fs;
-use std::rc::Rc;
-use std::path::PathBuf;
-use std::collections::HashMap;
+mod suchlogik;
 
+use suchlogik::verbinde_suchfeld;
+use gtk::prelude::*;
+use gtk::{
+    Application, ApplicationWindow, Box as GtkBox, Button, CssProvider, Entry, EventControllerKey,
+    Grid, Label, Notebook, Orientation, PolicyType, ScrolledWindow, Stack,
+    STYLE_PROVIDER_PRIORITY_APPLICATION,
+};
+use gtk::gdk::{self, Clipboard};
+use std::{
+    collections::HashMap,
+    fs, fs::OpenOptions,
+    path::PathBuf,
+    rc::Rc,
+    time::Instant,
+    io::Write,
+};
+use rayon::prelude::*;
+
+#[derive(Clone)]
 struct Symbol {
     emoji: String,
     begriffe: Vec<String>,
@@ -18,6 +31,12 @@ struct Einstellungen {
 }
 
 fn main() {
+    // Zeitmessung für Programmstart
+    let debug_startzeit = 0;
+    let start = Instant::now();
+    if debug_startzeit == 1 {
+        println!("Programmstart bei {:?}", start.elapsed());
+    }
 
     // settings.ini auslesen / erstellen
     let mut einstellungen = lade_settings();
@@ -36,7 +55,7 @@ fn main() {
 
     // Argumente abfangen
     let args: Vec<String> = std::env::args().collect();
-    if args.contains(&"--setup-shortcut".to_string()) {
+    if args.contains(&"--setup".to_string()) {
         setup_shortcut();
         return;
     }
@@ -58,9 +77,32 @@ fn main() {
         // Hauptlayout
         let vbox = GtkBox::new(Orientation::Vertical, 5);
         window.set_child(Some(&vbox));
+     
+        // CSS für UI laden
+        let global_css = CssProvider::new();
+        for pfad in [
+            "/usr/share/emoji-picker/emoji-picker.css",
+            "./emoji-picker.css" // nur für Entwicklung
+        ] {
+            if fs::metadata(pfad).is_ok() {
+                global_css.load_from_path(pfad);
+                gtk::style_context_add_provider_for_display(
+                    &gdk::Display::default().unwrap(),
+                    &global_css,
+                    STYLE_PROVIDER_PRIORITY_APPLICATION,
+                );
+                break;
+            } else {
+                eprintln!("🚫 CSS-Datei nicht gefunden: {}", pfad);
+            }
+        }
+        if debug_startzeit == 1 {
+            println!("🖌 CSS-Datei geladen in: {:?}", start.elapsed());
+        }
 
         // Suchfeld anlegen
         let suchfeld = Entry::new();
+        suchfeld.add_css_class("search-entry");
         suchfeld.set_placeholder_text(Some("🔍 Suche nach Symbolnamen..."));
         vbox.append(&suchfeld);
 
@@ -68,6 +110,17 @@ fn main() {
         let notebook = Rc::new(Notebook::new());
         notebook.set_vexpand(true);
         notebook.set_hexpand(true);
+
+        // Symbolgröße
+        let css = format!("button.emoji {{ font-size: {}px; }}", *emoji_size);
+        let emoji_css = CssProvider::new();
+        emoji_css.load_from_data(&css);
+        gtk::style_context_add_provider_for_display(
+            &gdk::Display::default().unwrap(),
+            &emoji_css,
+            STYLE_PROVIDER_PRIORITY_APPLICATION,
+        );
+
 
         // Such-Grid und Scrollbereich
         let such_grid = Rc::new(Grid::new());
@@ -93,79 +146,119 @@ fn main() {
 
         // Kategorien
         let kategorien = vec![
-            ("symbole.list", "✅"),
-            ("smileys.list", "😄"),
-            ("peoples.list", "👨"),
-            ("animals.list", "🐰"),
-            ("gestures.list", "👋"),
-            ("clothing.list", "👕"),
-            ("travel.list", "✈️"),
-            ("acivity.list", "🏀"),
-            ("nature.list", "🌲"),
-            ("food.list", "🍌"),
-            ("objects.list", "📎"),
-            ("flags.list", "🇩🇪"),
+            ("history.list",    "🕓"),
+            ("smileys.list",    "😄"),
+            ("peoples.list",    "👨"),
+            ("animals.list",    "🐰"),
+            ("gestures.list",   "👋"),
+            ("clothing.list",   "👕"),
+            ("activity.list",   "🏀"),
+            ("travel.list",     "✈️"),
+            ("nature.list",     "🌲"),
+            ("food.list",       "🍌"),
+            ("objects.list",    "📎"),
+            ("symbole.list",    "✅"),
+            ("flags.list",      "🇩🇪"),
         ];
 
         // Clipboard vorbereiten
         let display = gtk::gdk::Display::default().unwrap();
         let clipboard = Rc::new(display.clipboard());
 
-        // Symboldaten laden & Grids aufbauen
+        for (datei, _) in &kategorien {
+            // .list Dateien anlegen falls nicht vorhanden
+            kopiere_von_etc_falls_fehlend(datei);
+        }
+
+        if debug_startzeit == 1 {
+            println!("📁 /etc/emoji-picker Kopieren fertig nach {:?}", start.elapsed());
+        }
+
+        // Symbole parallel Laden
+        let lade_daten: Vec<(String, Vec<Symbol>)> = kategorien
+            .par_iter()
+            .map(|(datei, label)| {
+                // Lade Symbole - jetzt parallel (Nebenläufig)
+                let symbole = lade_symbole(datei);
+                (label.to_string(), symbole)
+            })
+            .collect();
+
+        if debug_startzeit == 1 {
+            println!("🙂 Emojis geladen in: {:?}", start.elapsed());
+        }
+
+        // Suchindex erstellen (flache Liste aller Symbole)
+        let such_index = Rc::new(
+            lade_daten
+                .iter()
+                .flat_map(|(_, symbole)| symbole.clone())
+                .collect::<Vec<_>>()
+        );
+
+        if debug_startzeit == 1 {
+            println!("🔍 Suchindex erstellt in: {:?}", start.elapsed());
+        }
+
+        // Grids aufbauen     
         let symbol_daten: Rc<HashMap<String, (Vec<Symbol>, Rc<Grid>)>> = Rc::new(
             // UI Setup            
-            kategorien.iter().map(|(datei, label)| {
-                // .list Dateien anlegen falls nicht vorhanden
-                kopiere_von_skel_falls_fehlend(datei);
+            lade_daten
+                .into_iter()
+                .map(|(label, symbole)| {
+                    let grid = Rc::new(Grid::new());
+                    grid.set_row_spacing(5);
+                    grid.set_column_spacing(5);
+                    grid.set_margin_top(10);
+                    grid.set_margin_bottom(10);
+                    grid.set_margin_start(12);
+                    grid.set_margin_end(12);
 
-                // Lade Symbole
-                let symbole = lade_symbole(datei);
-                let grid = Rc::new(Grid::new());
-                grid.set_row_spacing(5);
-                grid.set_column_spacing(5);
-                grid.set_margin_top(10);
-                grid.set_margin_bottom(10);
-                grid.set_margin_start(12);
-                grid.set_margin_end(12);
+                    // Scroll-Container erzeugen und vbox einbetten
+                    let scroll = ScrolledWindow::new();
+                    scroll.set_policy(PolicyType::Never, PolicyType::Automatic);
+                    scroll.set_child(Some(&*grid));
 
-                // Scroll-Container erzeugen und vbox einbetten
-                let scroll = ScrolledWindow::new();
-                scroll.set_policy(PolicyType::Never, PolicyType::Automatic);
-                scroll.set_child(Some(&*grid));
-
-                // Emoji-Größe für die Kategorie-Labels
-                let label_widget = Label::new(Some(label));
-                let css = format!(
-                    "label {{ font-size: {}px; padding: 2px; }}",
-                    *emoji_size
-                );
-                let provider = CssProvider::new();
-                provider.load_from_data(&css);
-                label_widget.style_context().add_provider(&provider, STYLE_PROVIDER_PRIORITY_APPLICATION);
- 
-                notebook.append_page(&scroll, Some(&label_widget));
-                (label.to_string(), (symbole, Rc::clone(&grid)))
-            }).collect(),
+                    // Emoji-Größe für die Kategorie-Labels
+                    let label_widget = Label::new(Some(&label));
+                    let css = format!(
+                        "label {{ font-size: {}px; padding: 2px; }}",
+                        *emoji_size
+                    );
+                    emoji_css.load_from_data(&css);
+                    label_widget.add_css_class("kategorie-tab");
+                    label_widget.style_context().add_provider(&emoji_css, STYLE_PROVIDER_PRIORITY_APPLICATION);
+     
+                    notebook.append_page(&scroll, Some(&label_widget));
+                    (label, (symbole, Rc::clone(&grid)))
+                })
+                .collect(),
         );
+
+        if debug_startzeit == 1 {
+            println!("🕸 Grid aufgebaut in {:?}", start.elapsed());
+        }
 
         // Symbole in Kategorien einfügen
         for (_label, (symbole, grid)) in symbol_daten.iter() {
-            let mut i = 0;
+            let mut buttons = Vec::new();
+
             for symbol in symbole.iter() {
-                // Emoji grösse
                 let button = Button::with_label(&symbol.emoji);
                 button.set_focusable(false);
                 button.set_size_request(*emoji_size, *emoji_size);
-                let css = format!("button {{ font-size: {}px; }}", *emoji_size);
-                let provider = CssProvider::new();
-                provider.load_from_data(&css);
-                button.style_context().add_provider(&provider, STYLE_PROVIDER_PRIORITY_APPLICATION);
+                button.add_css_class("emoji");
 
                 button.set_hexpand(false);
                 button.set_halign(gtk::Align::Center);
 
                 // Tooltip mit Suchbegriffen
-                button.set_tooltip_text(Some(&symbol.begriffe.join(", ")));
+                let begriffe = symbol.begriffe.join(", ");
+                button.set_has_tooltip(true);
+                button.connect_query_tooltip(move |_, _, _, _, tooltip| {
+                    tooltip.set_text(Some(&begriffe));
+                    true // Zeige Tooltip
+                });
 
                 let emoji = symbol.emoji.clone();
                 let clipboard = Rc::clone(&clipboard);
@@ -176,89 +269,35 @@ fn main() {
                     kopiere_und_schliesse(&emoji, &clipboard, &window, *schliessen.as_ref());
                 });
 
-                let row = i / 10;
-                let col = i % 10;
+                buttons.push(button);
+            }
+
+            for (i, button) in buttons.into_iter().enumerate() {
+                let row = i / 13;
+                let col = i % 13;
                 grid.attach(&button, col as i32, row as i32, 1, 1);
-                i += 1;
             }
         }
 
-        //Suchlogic
-        let symbol_daten_clone = Rc::clone(&symbol_daten);
-        let such_grid_clone = Rc::clone(&such_grid);
-        let clipboard_clone = Rc::clone(&clipboard);
-        let window_clone = Rc::clone(&window);
-        let schliessen_clone = Rc::clone(&fenster_schliessen);
-        let emoji_size_clone = Rc::clone(&emoji_size);
+        if debug_startzeit == 1 {
+            println!("📥 Emojis in Kategorien eingefügt in {:?}", start.elapsed());
+        }
 
-        suchfeld.connect_changed(move |entry| {
-            let text = entry.text().to_string().to_lowercase();
+        //Suchlogik
+        verbinde_suchfeld(
+            &suchfeld,
+            Rc::clone(&such_grid),
+            stack.clone(),
+            Rc::clone(&such_index),
+            Rc::clone(&clipboard),
+            Rc::clone(&window),
+            Rc::clone(&fenster_schliessen),
+            Rc::clone(&emoji_size),
+        );
 
-            if text.is_empty() {
-                stack.set_visible_child_name("notebook");
-                return;
-            }
-
-            // Suche aktivieren
-            stack.set_visible_child_name("suche");
-
-            // Suchgrid leeren
-            let mut child = such_grid_clone.first_child();
-            while let Some(widget) = child {
-                child = widget.next_sibling();
-                such_grid_clone.remove(&widget);
-            }
-            let mut i = 0;
-            for (_label, (symbole, _)) in symbol_daten_clone.iter() {
-                for symbol in symbole.iter() {
-                        let filter_text = text.trim().to_lowercase();
-                        let filter_kompakt = filter_text.replace(' ', "");
-
-                        let filter_wörter: Vec<_> = filter_text.split_whitespace().collect();
-                        let joined = symbol.begriffe.join("").to_lowercase();
-                        let begriffe_vec = symbol.begriffe.iter().map(|s| s.to_lowercase()).collect::<Vec<String>>();
-
-                        // Kombinationen aus direkt benachbarten Wörtern (Fenster)
-                        let mut kombis_fenster = (2..=begriffe_vec.len())
-                            .flat_map(|n| begriffe_vec.windows(n).map(|w| w.join("")));
-
-                        let passt = joined.contains(&filter_kompakt)
-                            || filter_wörter
-                                .iter()
-                                .all(|wort| symbol.begriffe.iter().any(|b| b.contains(wort)))
-                            || kombis_fenster
-                                .any(|kombi| kombi.contains(&filter_kompakt));
-
-                        if passt {
-                        let button = Button::with_label(&symbol.emoji);
-                        button.set_size_request(*emoji_size_clone, *emoji_size_clone);
-                        let css = format!("button {{ font-size: {}px; }}", *emoji_size_clone);
-                        let provider = CssProvider::new();
-                        provider.load_from_data(&css);
-                        button.style_context().add_provider(&provider, STYLE_PROVIDER_PRIORITY_APPLICATION);
-
-                        button.set_hexpand(false);
-                        button.set_halign(gtk::Align::Center);
-
-                        let emoji = symbol.emoji.clone();
-                        let clipboard = Rc::clone(&clipboard_clone);
-                        let window = Rc::clone(&window_clone);
-                        let schliessen = Rc::clone(&schliessen_clone);
-
-                        button.set_tooltip_text(Some(&symbol.begriffe.join(", ")));
-
-                        button.connect_clicked(move |_| {
-                            kopiere_und_schliesse(&emoji, &clipboard, &window, *schliessen.as_ref());
-                        });
-
-                        let row = i / 10;
-                        let col = i % 10;
-                        such_grid_clone.attach(&button, col as i32, row as i32, 1, 1);
-                        i += 1;
-                    }
-                }
-            }
-        });
+        if debug_startzeit == 1 {
+            println!("🔍 Suchfeld erzeugt in {:?}", start.elapsed());
+        }
 
         // Mit Enter das erste Symbol auswählen
         let such_grid_clone2 = Rc::clone(&such_grid);
@@ -310,6 +349,10 @@ fn main() {
             }
         });
 
+        if debug_startzeit == 1 {
+            println!("🕹 Fenstersteuerung erstellt in {:?}", start.elapsed());
+        }
+
         window.add_controller(controller_tab);
         suchfeld.grab_focus();
 
@@ -331,29 +374,54 @@ fn main() {
         }
 
         window.present();
+
+        if debug_startzeit == 1 {
+            println!("🪟 UI erzeugt in {:?}", start.elapsed());
+        }
     });
 
     app.run();
 }
 
-fn kopiere_von_skel_falls_fehlend(dateiname: &str) {
+// ███████╗██╗   ██╗███╗   ██╗ ██████╗████████╗██╗ ██████╗ ███╗   ██╗
+// ██╔════╝██║   ██║████╗  ██║██╔════╝╚══██╔══╝██║██╔═══██╗████╗  ██║
+// █████╗  ██║   ██║██╔██╗ ██║██║        ██║   ██║██║   ██║██╔██╗ ██║
+// ██╔══╝  ██║   ██║██║╚██╗██║██║        ██║   ██║██║   ██║██║╚██╗██║
+// ██║     ╚██████╔╝██║ ╚████║╚██████╗   ██║   ██║╚██████╔╝██║ ╚████║
+// ╚═╝      ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+
+fn kopiere_von_etc_falls_fehlend(dateiname: &str) {
     let ziel_pfad = dirs::config_dir()
         .unwrap_or_else(|| PathBuf::from("."))
         .join("emoji-picker")
         .join(dateiname);
 
     if !ziel_pfad.exists() {
-        let skel_pfad = PathBuf::from("/etc/skel/.config/emoji-picker").join(dateiname);
-        if skel_pfad.exists() {
+        let etc_pfad = PathBuf::from("/etc/emoji-picker").join(dateiname);
+        if etc_pfad.exists() {
             let _ = std::fs::create_dir_all(ziel_pfad.parent().unwrap());
-            let _ = std::fs::copy(&skel_pfad, &ziel_pfad);
-            println!("📁 Kopiert aus /etc/skel: {}", dateiname);
+            let _ = std::fs::copy(&etc_pfad, &ziel_pfad);
+            println!("📁 Kopiert aus /etc/emoji-picker: {}", dateiname);
+        }else if dateiname == "history.list" {
+            // 🆕 history.list erstellen wenn nicht schon vorhanden
+            let _ = std::fs::create_dir_all(ziel_pfad.parent().unwrap());
+            let _ = std::fs::write(&ziel_pfad, "");
+            println!("📁 Erstellt: {}", dateiname);
         }
     }
 }
 
 fn kopiere_und_schliesse(emoji: &str, clipboard: &Clipboard, window: &ApplicationWindow, schliessen: bool) {
     clipboard.set_text(emoji);
+
+    // History speichern
+    let mut pfad = dirs::config_dir().unwrap_or_else(|| PathBuf::from("."));
+    pfad.push("emoji-picker/history.list");
+
+    if let Ok(mut file) = OpenOptions::new().create(true).append(true).open(pfad) {
+        let _ = writeln!(file, "{}", emoji);
+    }
+
     if schliessen {
         window.close();
     }
@@ -363,12 +431,38 @@ fn lade_symbole(dateiname: &str) -> Vec<Symbol> {
     let mut pfad = dirs::config_dir().unwrap_or_else(|| PathBuf::from("."));
     pfad.push("emoji-picker");
     pfad.push(dateiname);
-    fs::read_to_string(pfad).unwrap_or_default().lines().filter_map(|zeile| {
-        let mut parts = zeile.split_whitespace();
-        let emoji = parts.next()?.to_string();
-        let begriffe = parts.map(|s| s.to_lowercase()).collect();
-        Some(Symbol { emoji, begriffe })
-    }).collect()
+    let inhalt = fs::read_to_string(pfad)        // Datei (pfad) als String lesen
+                        .unwrap_or_default();    // Wenn Datei fehlt oder fehlerhaft, ersetze durch leeren String "" - verhindert einen crash
+
+    if dateiname == "history.list" {
+        // History: Emojis zählen, sortieren, eindeutige Einträge erzeugen
+        let mut zaehler = std::collections::HashMap::new();
+
+        for zeile in inhalt.lines().map(str::trim).filter(|l| !l.is_empty()) {
+            *zaehler.entry(zeile.to_string()).or_insert(0) += 1;
+        }
+
+        let mut eintraege: Vec<_> = zaehler.into_iter().collect();
+        eintraege.sort_by(|a, b| b.1.cmp(&a.1)); // nach Häufigkeit, absteigend
+
+        eintraege.into_iter()
+            .take(30)                   // auf die 30 häufigsten Begrenzt
+            .map(|(emoji, _)| Symbol {
+                emoji,
+                begriffe: vec!["history".to_string()],
+            })
+            .collect()
+    } else {   
+        // Normale .list-Dateien: klassisch einlesen
+        inhalt
+            .lines()                // Zeile für Zeile
+            .filter_map(|zeile| {
+                let mut parts = zeile.split_whitespace();                   // Trenne an Leerzeichen
+                let emoji = parts.next()?.to_string();                      // Erstes Element ist das Emoji
+                let begriffe = parts.map(|s| s.to_lowercase()).collect();   // Dahinter alle Begriffe kleingeschrieben
+                Some(Symbol { emoji, begriffe })
+            }).collect()            // wandelt Some(Symbol) in Vec<Symbol> um
+    }
 }
 
 fn lade_settings() -> Einstellungen {
@@ -379,7 +473,7 @@ fn lade_settings() -> Einstellungen {
         let _ = fs::write(&pfad, "[Allgemein]\nsetup_erledigt = false\nfenster_schliessen = true\nemoji_size = 20\n");
     }
     let content = fs::read_to_string(&pfad).unwrap_or_default();
-    println!("🔧 settings.ini Inhalt:\n{}", content);
+    // println!("🔧 settings.ini Inhalt:\n{}", content);
     let mut setup_erledigt = false;
     let mut fenster_schliessen = true;
     let mut emoji_size = 20;
@@ -400,7 +494,7 @@ fn lade_settings() -> Einstellungen {
             }
         }
     }
-    println!("🧪 Auswertung: setup_erledigt = {} | fenster_schliessen = {} | emoji_size = {}", setup_erledigt, fenster_schliessen, emoji_size);
+    // println!("🧪 Auswertung: setup_erledigt = {} | fenster_schliessen = {} | emoji_size = {}", setup_erledigt, fenster_schliessen, emoji_size);
     Einstellungen { setup_erledigt, fenster_schliessen, emoji_size }
 }
 
