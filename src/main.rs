@@ -22,7 +22,7 @@ use std::{
 
 fn main() {
     // Zeitmessung für Programmstart
-    let debug_startzeit = 1;
+    let debug_startzeit = 0;
     let timer = Instant::now();
     if debug_startzeit == 1 {
         println!("Programmstart bei {:?}", timer.elapsed());

@@ -170,7 +170,7 @@ fn lade_emojies(dateiname: &str) -> Vec<Symbol> {
 pub fn lade_ui_css() {
 	let global_css = CssProvider::new();
     for pfad in [
-        // "/usr/share/emoji-picker/emoji-picker.css",
+        "/usr/share/emoji-picker/emoji-picker.css",
         "./assets/usr/share/emoji-picker/emoji-picker.css" // nur für Entwicklung
     ] {
         if fs::metadata(pfad).is_ok() {

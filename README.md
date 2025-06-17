@@ -1,14 +1,14 @@
-# 👻 Emoji-Picker v1.0.1
+# 👻 Emoji-Picker v1.1.0
 
-Ein schneller, einfacher Emoji-Picker für Linux (GTK-basiert, Rust).
+Ein schneller, einfacher Emoji-Picker für Linux (GTK-basiert, in Rust geschrieben).
 
 ## 💡 Features
 
 * 🔎 Schnelle Live-Suche nach Emojis via Stichworte
 * 📑 Kategorien über Tabs organisiert
 * 📥 Klick oder Enter kopiert Emoji direkt in Zwischenablage
-* ⚙️ Einfache Konfiguration über settings.ini
-* ⌨️ Aufrufbar per Tastenkombination (z. B. Super+.)
+* ⚙️ Einfache Konfiguration über das Einstellungsmenü
+* ⌨️ Aufrufbar per Tastenkombination (Super+.)
 * ✅ Erstkonfiguration beim ersten Start
 * 🚀 Leichtgewichtig & ohne unnötige Abhängigkeiten
 
@@ -24,14 +24,18 @@ Ein schneller, einfacher Emoji-Picker für Linux (GTK-basiert, Rust).
 
 ![Suche aktiv](screenshots/emoji-picker2.png)
 
+### Optionsmenü
+
+![Suche aktiv](screenshots/emoji-picker3.png)
+
 ---
 
 ## 🔧 Installation
 
-### .deb-Paket (empfohlen für Debian/Mint/Ubuntu):
+### .deb-Paket (empfohlen für Debian, Mint, Tuxedo, Ubuntu):
 
 ```bash
-sudo apt install ./emoji-picker_1.0.1_amd64.deb
+sudo apt install ./emoji-picker_1.1.0_amd64.deb
 ```
 
 ### 💻 Manuell kompilieren:
@@ -53,24 +57,25 @@ Beim ersten Start wird unter `~/.config/emoji-picker/settings.ini` automatisch e
 ```ini
 [Allgemein]
 setup_erledigt = true          Legt fest ob Setup beim ersten Start ausgeführt wurde
-fenster_schliessen = true      Ob das Fenster automatisch geschloßen wird
+fenster_schliessen = true      Legt fest ob das Fenster nach auswahl eines Emojis automatisch geschloßen wird
+fenster_offen_bei_drag = true  Legt fest ob das Fenster bei Drag und Drop offen bleibt um mehrfach Emojis zu ermöglichen
 emoji_size = 20                Größeneinstellung der Emojis
 ```
-
-Die Werte lassen sich dort jederzeit anpassen.
+Die Werte lassen sich dort oder im UI jederzeit anpassen.
 
 ---
 
 ## ⌨️ Tastenkombination einrichten
 
 Falls beim ersten Start keine Tastenkombination gesetzt wurde:
-getestet unter: Linux Mint 22.1 Cinnamon
+getestet unter: Linux Mint 22.1 Cinnamon, Xfce, Mate, Kde, Gnome
+Manuelle Konfig nötig: Mate & Kde
 
 ```bash
-emoji-picker --setup
+emoji-picker --setup	Alternativ im UI -> Einstellungen
 ```
 
-Diese legt unter Cinnamon die Kombination Super+. für den Emoji-Picker an.
+Diese legt die tastenkombination Super+. für den Emoji-Picker an.
 
 ---
 
