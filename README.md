@@ -58,9 +58,9 @@ Beim ersten Start wird unter `~/.config/emoji-picker/settings.ini` automatisch e
 [Allgemein]
 setup_erledigt = true          Legt fest ob Setup beim ersten Start ausgeführt wurde
 fenster_schliessen = true      Legt fest ob das Fenster nach auswahl eines Emojis 
-							   automatisch geschloßen wird
+                               automatisch geschloßen wird
 fenster_offen_bei_drag = true  Legt fest ob das Fenster bei Drag und Drop offen bleibt
-							   um mehrfach Emojis zu ermöglichen
+                               um mehrfach Emojis zu ermöglichen
 emoji_size = 20                Größeneinstellung der Emojis
 ```
 Die Werte lassen sich dort oder im UI jederzeit anpassen.
