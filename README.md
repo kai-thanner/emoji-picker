@@ -1,5 +1,9 @@
 # 👻 Emoji-Picker v1.1.0
 
+![Rust](https://img.shields.io/badge/Rust-1.87-orange?logo=rust)
+![GTK4](https://img.shields.io/badge/GTK-4.x-blue?logo=gnome)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat)
+
 Ein schneller, einfacher Emoji-Picker für Linux (GTK-basiert, in Rust geschrieben).
 
 ## 💡 Features
@@ -100,7 +104,3 @@ Dieses Projekt steht unter der MIT-Lizenz. Siehe [LICENSE](LICENSE).
 ## 👨‍💻 Entwickler
 
 > Erstellt von Kai Thanner
-
-```markdown
-![Rust](https://img.shields.io/badge/Rust-1.87-orange?logo=rust)
-![GTK4](https://img.shields.io/badge/GTK-4.x-blue?logo=gnome)
