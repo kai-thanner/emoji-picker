@@ -15,6 +15,10 @@ button.emoji {
     transition: background-color 300ms ease-in-out; /* Hintergrund beim drüberhovern */
 }
 
+button.emoji:focus {
+    border: 2px solid #4a90e2;
+    border-radius: 6px;
+}
 button.emoji:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
@@ -26,7 +30,17 @@ label.kategorie-tab {
     margin: 2px;
     transition: background-color 150ms;
 }
-
 label.kategorie-tab:hover {
     background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Einstellungen: Verlauf reset */
+button.verlauf-reset {
+    background: #803333; /* weniger aggressives Dunkelrot */
+    color: white;
+    border-radius: 5px;
+    border: 1px solid #a04444;
+}
+button.verlauf-reset:hover {
+    background: #994444;
 }

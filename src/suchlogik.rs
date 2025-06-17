@@ -1,9 +1,9 @@
 use gtk::prelude::*;
 use gtk::{Button, Grid, Stack};
 use glib::source::idle_add_local;
-use std::{rc::Rc, cell::Cell};
+use std::{cell::Cell, rc::Rc};
 
-use crate::{Symbol, kopiere_und_schliesse};
+use crate::{emoji_tabs::Symbol, kopiere_und_schliesse, settings::Einstellungen};
 
 pub fn verbinde_suchfeld(
     entry: &gtk::Entry,
@@ -12,14 +12,19 @@ pub fn verbinde_suchfeld(
     such_index: Rc<Vec<Symbol>>,
     clipboard: Rc<gtk::gdk::Clipboard>,
     window: Rc<gtk::ApplicationWindow>,
-    schliessen: Rc<bool>,
-    emoji_size: Rc<i32>,
+    einstellungen: Rc<Einstellungen>,
 ) {
     let pending = Rc::new(Cell::new(false));
 
     entry.connect_changed({
         let entry = entry.clone();
         let pending = Rc::clone(&pending);
+        let such_grid = Rc::clone(&such_grid);
+        let such_index = Rc::clone(&such_index);
+        let clipboard = Rc::clone(&clipboard);
+        let window = Rc::clone(&window);
+        let stack = stack.clone();
+        let einstellungen = Rc::clone(&einstellungen);
 
         move |_| {
             if pending.get() {
@@ -33,13 +38,15 @@ pub fn verbinde_suchfeld(
             let such_index = Rc::clone(&such_index);
             let clipboard = Rc::clone(&clipboard);
             let window = Rc::clone(&window);
-            let schliessen = Rc::clone(&schliessen);
-            let emoji_size = Rc::clone(&emoji_size);
             let stack = stack.clone();
             let pending = Rc::clone(&pending);
+            let einstellungen = Rc::clone(&einstellungen);
 
             idle_add_local(move || {
                 pending.set(false);
+
+                let schliessen = einstellungen.fenster_schliessen.get();
+                let emoji_size = einstellungen.emoji_size.get();
 
                 let text = entry.text().to_string();
                 let filter_text = text.trim().to_lowercase();
@@ -67,6 +74,7 @@ pub fn verbinde_suchfeld(
                 let mut i = 0;
                 for symbol in such_index.iter() {
                     let joined = symbol.begriffe.join("").to_lowercase();
+                    let begriffe = symbol.begriffe.clone();
                     let begriffe_vec = symbol.begriffe.iter().map(|s| s.to_lowercase()).collect::<Vec<_>>();
 
                     let kombis_fenster = if begriffe_vec.len() >= 2 {
@@ -97,7 +105,7 @@ pub fn verbinde_suchfeld(
 
                     let button = Button::with_label(&symbol.emoji);
                     button.set_focusable(false);
-                    button.set_size_request(*emoji_size, *emoji_size);
+                    button.set_size_request(emoji_size, emoji_size);
                     button.add_css_class("emoji");
                     button.set_hexpand(false);
                     button.set_halign(gtk::Align::Center);
@@ -106,10 +114,9 @@ pub fn verbinde_suchfeld(
                     let emoji = symbol.emoji.clone();
                     let clipboard = Rc::clone(&clipboard);
                     let window = Rc::clone(&window);
-                    let schliessen = Rc::clone(&schliessen);
 
                     button.connect_clicked(move |_| {
-                        kopiere_und_schliesse(&emoji, &clipboard, &window, *schliessen.as_ref());
+                        kopiere_und_schliesse(&emoji, &clipboard, &window, schliessen, &begriffe);
                     });
 
                     let row = i / 10;

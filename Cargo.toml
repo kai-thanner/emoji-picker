@@ -1,12 +1,86 @@
 [package]
-name = "emoji-picker"
-version = "1.0.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+name         = "emoji-picker"
+version      = "1.0.9"
+edition      = "2024"
+description  = "Emoji picker GUI tool written in Rust and GTK4"
+authors      = ["Kai Thanner <kai-thanner@t-online.de>"]
+repository   = "https://github.com/kai-thanner/emoji-picker"
+readme       = "README.md"
+license      = "MIT"
 
 [dependencies]
-gtk = { package = "gtk4", version = "0.8" }
-glib = "0.19"
-dirs = "4"
-itertools = "0.12"
+gtk       = { version = "0.9", package = "gtk4" }
+glib      = "0.20"
+dirs      = "6"
+itertools = "0.14"
+rayon     = "1.10"
+
+# ██████╗ ███████╗██████╗     ██████╗  █████╗ ██╗  ██╗███████╗████████╗
+# ██╔══██╗██╔════╝██╔══██╗    ██╔══██╗██╔══██╗██║ ██╔╝██╔════╝╚══██╔══╝
+# ██║  ██║█████╗  ██████╔╝    ██████╔╝███████║█████╔╝ █████╗     ██║   
+# ██║  ██║██╔══╝  ██╔══██╗    ██╔═══╝ ██╔══██║██╔═██╗ ██╔══╝     ██║   
+# ██████╔╝███████╗██████╔╝    ██║     ██║  ██║██║  ██╗███████╗   ██║   
+# ╚═════╝ ╚══════╝╚═════╝     ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝   ╚═╝ 
+[package.metadata.deb]
+maintainer  = "Kai Thanner <kai-thanner@t-online.de>"
+depends     = "gtk4, libc6 (>= 2.39)"
+section     = "utils"
+priority    = "optional"
+assets      = [
+    # Binärdatei
+    ["target/release/emoji-picker", "usr/bin/", "755"],
+
+    # Desktop-Datei und CSS
+    ["assets/usr/share/applications/emoji-picker.desktop", "usr/share/applications/", "644"],
+    ["assets/usr/share/emoji-picker/emoji-picker.css", "usr/share/emoji-picker/", "644"],
+
+    # Icons (alle Größen)
+    ["assets/usr/share/icons/hicolor/16x16/apps/emoji-picker.png", "usr/share/icons/hicolor/16x16/apps/", "644"],
+    ["assets/usr/share/icons/hicolor/32x32/apps/emoji-picker.png", "usr/share/icons/hicolor/32x32/apps/", "644"],
+    ["assets/usr/share/icons/hicolor/48x48/apps/emoji-picker.png", "usr/share/icons/hicolor/48x48/apps/", "644"],
+    ["assets/usr/share/icons/hicolor/64x64/apps/emoji-picker.png", "usr/share/icons/hicolor/64x64/apps/", "644"],
+    ["assets/usr/share/icons/hicolor/128x128/apps/emoji-picker.png", "usr/share/icons/hicolor/128x128/apps/", "644"],
+    ["assets/usr/share/icons/hicolor/256x256/apps/emoji-picker.png", "usr/share/icons/hicolor/256x256/apps/", "644"],
+    ["assets/usr/share/icons/hicolor/512x512/apps/emoji-picker.png", "usr/share/icons/hicolor/512x512/apps/", "644"],
+
+    # Symbol-Listen
+    ["assets/etc/emoji-picker/*.list", "etc/emoji-picker/", "644"]
+]
+
+# ██████╗ ██████╗ ███╗   ███╗    ██████╗  █████╗ ██╗  ██╗███████╗████████╗
+# ██╔══██╗██╔══██╗████╗ ████║    ██╔══██╗██╔══██╗██║ ██╔╝██╔════╝╚══██╔══╝
+# ██████╔╝██████╔╝██╔████╔██║    ██████╔╝███████║█████╔╝ █████╗     ██║   
+# ██╔══██╗██╔═══╝ ██║╚██╔╝██║    ██╔═══╝ ██╔══██║██╔═██╗ ██╔══╝     ██║   
+# ██║  ██║██║     ██║ ╚═╝ ██║    ██║     ██║  ██║██║  ██╗███████╗   ██║   
+# ╚═╝  ╚═╝╚═╝     ╚═╝     ╚═╝    ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝   ╚═╝ 
+[package.metadata.rpm]
+package     = "emoji-picker"
+license     = "MIT"
+description = "Emoji picker GUI tool written in Rust and GTK4"
+requires    = ["gtk4", "glibc >= 2.39"]
+
+[package.metadata.rpm.cargo]
+buildflags = ["--release"]
+
+[package.metadata.rpm.targets]
+emoji-picker = { path = "/usr/bin/emoji-picker" }
+
+[package.metadata.rpm.files]
+# Binärdatei
+"target/release/emoji-picker" = { path = "/usr/bin/emoji-picker", mode = "755" }
+
+# Desktop-Datei und CSS
+"assets/usr/share/applications/emoji-picker.desktop" = { path = "/usr/share/applications/", mode = "644" }
+"assets/usr/share/emoji-picker/emoji-picker.css"     = { path = "/usr/share/emoji-picker/", mode = "644" }
+
+# Icons
+"assets/usr/share/icons/hicolor/16x16/apps/emoji-picker.png"  = { path = "/usr/share/icons/hicolor/16x16/apps/", mode = "644" }
+"assets/usr/share/icons/hicolor/32x32/apps/emoji-picker.png"  = { path = "/usr/share/icons/hicolor/32x32/apps/", mode = "644" }
+"assets/usr/share/icons/hicolor/48x48/apps/emoji-picker.png"  = { path = "/usr/share/icons/hicolor/48x48/apps/", mode = "644" }
+"assets/usr/share/icons/hicolor/64x64/apps/emoji-picker.png"  = { path = "/usr/share/icons/hicolor/64x64/apps/", mode = "644" }
+"assets/usr/share/icons/hicolor/128x128/apps/emoji-picker.png" = { path = "/usr/share/icons/hicolor/128x128/apps/", mode = "644" }
+"assets/usr/share/icons/hicolor/256x256/apps/emoji-picker.png" = { path = "/usr/share/icons/hicolor/256x256/apps/", mode = "644" }
+"assets/usr/share/icons/hicolor/512x512/apps/emoji-picker.png" = { path = "/usr/share/icons/hicolor/512x512/apps/", mode = "644" }
+
+# .list Dateien (gesamter Ordner)
+"assets/etc/emoji-picker/" = { path = "/etc/emoji-picker/", mode = "644" }
