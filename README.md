@@ -52,16 +52,17 @@ Die fertige Binärdatei liegt dann in `target/release/emoji-picker`
 
 ## ⚙️ Konfiguration & Einstellungen
 
-Beim ersten Start wird unter `~/.config/emoji-picker/settings.ini` automatisch eine Datei erzeugt:
+Beim ersten Start wird unter `~/.config/emoji-picker/settings.ini` automatisch eine
+Konfigurationsdatei erstellt:
 
 ```ini
 [Allgemein]
-setup_erledigt = true          Legt fest ob Setup beim ersten Start ausgeführt wurde
-fenster_schliessen = true      Legt fest ob das Fenster nach auswahl eines Emojis automatisch geschloßen wird
-fenster_offen_bei_drag = true  Legt fest ob das Fenster bei Drag und Drop offen bleibt um mehrfach Emojis zu ermöglichen
-emoji_size = 20                Größeneinstellung der Emojis
+setup_erledigt = true          # Ob das Setup bereits durchgeführt wurde
+fenster_schliessen = true      # Fenster nach Emoji-Auswahl automatisch schließen
+fenster_offen_bei_drag = true  # Fenster bei Drag & Drop geöffnet lassen
+emoji_size = 20                # Emoji-Größe in Pixeln
 ```
-Die Werte lassen sich dort oder im UI jederzeit anpassen.
+Die Werte lassen sich direkt in der Datei oder über das Einstellungsmenü ändern.
 
 ---
 
@@ -88,7 +89,7 @@ Diese legt die tastenkombination Super+. für den Emoji-Picker an.
 | `/usr/share/icons/hicolor/_x_/apps/emoji-picker.png` 	   | Icons 16x16 - 512x512           |
 | `/usr/share/emoji-picker/`                               | .css Datei für GUI-Fenster      |
 | `/etc/emoji-picker/`                                     | .list-Dateien als Vorlage       |
-| `~/.config/emoji-picker/`                                | Nutzerdaten (Symbole, Settings) |
+| `~/.config/emoji-picker/`                                | Nutzerdaten (History, Settings) |
 
 ---
 
@@ -99,3 +100,7 @@ Dieses Projekt steht unter der MIT-Lizenz. Siehe [LICENSE](LICENSE).
 ## 👨‍💻 Entwickler
 
 > Erstellt von Kai Thanner
+
+```markdown
+![Rust](https://img.shields.io/badge/Rust-1.87-orange?logo=rust)
+![GTK4](https://img.shields.io/badge/GTK-4.x-blue?logo=gnome)
