@@ -1,4 +1,4 @@
-# 👻 Emoji-Picker v1.1.0
+# 👻 Emoji-Picker v1.1.2
 
 ![Rust](https://img.shields.io/badge/Rust-1.87-orange?logo=rust)
 ![GTK4](https://img.shields.io/badge/GTK-4.x-blue?logo=gnome)
