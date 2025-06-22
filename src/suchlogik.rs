@@ -99,7 +99,7 @@ pub fn verbinde_suchfeld(
                     }
 
                     // ✅ Begrenzung NACH dem Check
-                    if i >= 100 {
+                    if i >= 30 {
                         break; // maximal 100 Emojis anzeigen
                     }
 
@@ -119,8 +119,8 @@ pub fn verbinde_suchfeld(
                         kopiere_und_schliesse(&emoji, &clipboard, &window, schliessen, &begriffe);
                     });
 
-                    let row = i / 15;
-                    let col = i % 15;
+                    let row = i / 10;
+                    let col = i % 10;
                     such_grid.attach(&button, col as i32, row as i32, 1, 1);
                     i += 1;
                 }

@@ -14,7 +14,7 @@ use std::{
 use crate::shortcut;
 use crate::emoji_tabs::*; 
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Einstellungen {
     pub setup_erledigt: Cell<bool>,
     pub fenster_schliessen: Cell<bool>,
@@ -22,52 +22,10 @@ pub struct Einstellungen {
     pub emoji_size: Cell<i32>,
 }
 
-// ╔══════════════════════════════════════════════════════════════╗
-// ║                  Ablauf: settings.ini Usage                  ║
-// ╚══════════════════════════════════════════════════════════════╝
-//
-//     [ Programmstart ]
-//             │
-//             ▼
-// ╔═══════════════════════╗
-// ║ lade_settings()       ║  ←  emoji_size, setup_erledigt etc.
-// ╚═══════════════════════╝
-//             │
-//             │
-//             ├──────────────► Falls `setup_erledigt == false`
-//             │               Zeige Setup-Infofenster
-//             │
-//             ▼
-//  [ Hauptfenster läuft ]──────────────────────────────┐
-//             │                                        │
-//             ▼                                        ▼
-//     [ Zahnrad-Klick ]                     [ Tastenkombi: --setup ]
-//             │                                        │
-//             ▼                                        ▼
-// ╔═══════════════════════╗                 ╔═══════════════════════╗
-// ║ lade_settings()       ║                 ║ lade_settings()       ║
-// ╚═══════════════════════╝                 ╚═══════════════════════╝
-//             │                                        │
-//             ▼                                        ▼
-// ╔═══════════════════════╗                 ╔═══════════════════════╗
-// ║ User ändert Optionen  ║                 ║ Shortcut einrichten   ║
-// ╚═══════════════════════╝                 ╚═══════════════════════╝
-//             │                                        │
-//             ▼                                        ▼
-// ╔═══════════════════════╗                 ╔═══════════════════════╗
-// ║ speichere_settings()  ║                 ║ speichere_settings()  ║  ← setup_erledigt = true
-// ╚═══════════════════════╝                 ╚═══════════════════════╝
-//             │                                        │
-//             ▼                                        ▼
-//  [ Einstellungen aktiv ]                  [ Kein Setup-Dialog mehr ]
-
-
-
 pub fn zeige_einstellungsfenster(
 	parent: Rc<ApplicationWindow>,
 	einstellungen: Rc<Einstellungen>,
 	emojies_daten: Rc<RefCell<HashMap<String, (Vec<Symbol>, Rc<Grid>)>>>,
-	debug: u8,
 ) {
 	let dialog = Dialog::builder()
 		.transient_for(parent.as_ref())
@@ -94,7 +52,7 @@ pub fn zeige_einstellungsfenster(
 		let einstellungen_shortcut = Rc::clone(&einstellungen);
 
 		shortcut_button.connect_clicked(move |_|{
-			shortcut::zeige_setup_dialog(parent_shortcut.as_ref(), &einstellungen_shortcut, debug);
+			shortcut::zeige_setup_dialog(parent_shortcut.as_ref(), &einstellungen_shortcut);
 		});
 	}
 	vbox.append(&shortcut_button);
