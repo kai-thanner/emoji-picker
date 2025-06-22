@@ -3,10 +3,11 @@ use gtk::{ ApplicationWindow, MessageDialog, ButtonsType, MessageType};
 use std::rc::Rc;
 use std::process::Command;
 
-use crate::settings::Einstellungen;
+use crate::settings::Einstellungen; 
+use crate::settings;
 
-#[derive(Debug)]
-enum Desktop {
+#[derive(Debug, PartialEq)]
+pub enum Desktop {
 	Cinnamon,
 	Xfce,
 	Mate,
@@ -22,10 +23,8 @@ pub struct ShortcutErgebnis {
 	pub meldung: String,
 }
 
-pub fn zeige_setup_dialog(fenster: &ApplicationWindow, einstellungen: &Rc<Einstellungen>) {
+pub fn zeige_setup_dialog(fenster: &ApplicationWindow, einstellungen: &Rc<Einstellungen>, debug: u8) {
 	let shortcut_info = setup_shortcut();
-
-	crate::settings::speichere_settings(einstellungen);
 
 	let dialog = MessageDialog::builder()
 		.transient_for(fenster)
@@ -46,10 +45,19 @@ pub fn zeige_setup_dialog(fenster: &ApplicationWindow, einstellungen: &Rc<Einste
 	});
 
 	dialog.show();
+
+	// 📁 Config-Datei aktualisieren		
+    // ⏩ Auch wenn kein Shortcut möglich ist, nicht erneut fragen
+    einstellungen.setup_erledigt.set(true);
+    settings::speichere_settings(&einstellungen);
+
+    if debug == 1 {
+	    println!("💾 Setup wurde angezeigt. setup_erledigt auf true gesetzt");
+	}
 }
 
 pub fn setup_shortcut() -> ShortcutErgebnis {
-	match detect_desktop() {
+	let ergebnis = match detect_desktop() {
 		Desktop::Cinnamon	=> setup_cinnamon(),
 		Desktop::Xfce		=> setup_xfce(),
 		Desktop::Mate 		=> setup_mate(),
@@ -60,10 +68,11 @@ pub fn setup_shortcut() -> ShortcutErgebnis {
 			erfolg: false,
 			meldung: "🚫 Desktopumgebung nicht erkannt. Bitte manuell konfigurieren.".into(),
 		},
-	}
+	};
+	ergebnis
 }
 
-fn detect_desktop() -> Desktop {
+pub fn detect_desktop() -> Desktop {
 	use std::env;
 
 	if let Ok(session) = env::var("XDG_CURRENT_DESKTOP") {
@@ -109,14 +118,89 @@ fn apply_gsettings(command: &[(&str, &[&str])]) -> bool {
 fn setup_cinnamon() -> ShortcutErgebnis {
     println!("🛠 Versuche, Tastenkombi <Super>+. zu setzen...");
 
-    let cmds = vec![
-        ("gsettings", &["set", "org.cinnamon.desktop.keybindings", "custom-list", "['custom0']"][..]),
-        ("gsettings", &["set", "org.cinnamon.desktop.keybindings.custom-keybinding:/org/cinnamon/desktop/keybindings/custom-keybindings/custom0/", "name", "Emoji Picker"][..]),
-        ("gsettings", &["set", "org.cinnamon.desktop.keybindings.custom-keybinding:/org/cinnamon/desktop/keybindings/custom-keybindings/custom0/", "command", "emoji-picker"][..]),
-        ("gsettings", &["set", "org.cinnamon.desktop.keybindings.custom-keybinding:/org/cinnamon/desktop/keybindings/custom-keybindings/custom0/", "binding", "['<Super>period']"][..]),
-    ];
+    // Bestehende Liste "Eigene Tastenkombinationen" abrufen
+    let output = std::process::Command::new("gsettings")
+    	.args(&["get", "org.cinnamon.desktop.keybindings", "custom-list"])
+    	.output();
 
+    let mut list = vec![];
+
+    if let Ok(output) = output {
+    	if output.status.success() {
+    		let raw = String::from_utf8_lossy(&output.stdout);
+    		list = raw
+    			.trim_matches(['[', ']', '\n', ' ', '\''].as_ref())
+    			.split(',')
+    			.map(|s| s.trim_matches(&['\'', ' '][..]).to_string())
+    			.filter(|s| !s.is_empty())
+    			.collect();
+    	}
+    }
+
+    // Prüfen, ob emoji-picker bereits eingetragen ist
+    for eintrag in &list {
+    	let full_path = format!("/org/cinnamon/desktop/keybindings/custom-keybindings/{}/", eintrag);
+    	let output = std::process::Command::new("gsettings")
+    		.args(&[
+    			"get",
+    			&format!("org.cinnamon.desktop.keybindings.custom-keybinding:{}", full_path),
+    			"command",
+    		])
+    		.output();
+
+    	if let Ok(output) = output {
+    		if output.status.success() {
+    			let raw = String::from_utf8_lossy(&output.stdout);
+    			if raw.contains("emoji-picker") {
+    				println!("Emoji Picker bereits in '{}' eingetragen. Kein neuer Eintrag nötig", eintrag);
+    				return ShortcutErgebnis {
+    					desktop: "Cinnamon".into(),
+    					erfolg: true,
+    					meldung: "✅ Tastenkombination war bereits vorhanden.".into(),
+    				};
+    			}
+    		}
+    	}
+
+    }
+
+
+    // Eintrag suchen (custom0, custom1, ...)
+    let mut custom_key = String::new();
+    for i in 0..50 {
+    	let key = format!("custom{}", i);
+    	if !list.contains(&key) {
+    		custom_key = key;
+    		list.push(custom_key.clone());
+    		break;
+    	}
+    }
+
+    // Pfad zum Ziel
+    let full_path = format!("org.cinnamon.desktop.keybindings.custom-keybinding:/org/cinnamon/desktop/keybindings/custom-keybindings/{}/", custom_key);
+
+    // Keybinding setzen
+    let list_string = format!(
+    	"[{}]",
+    	list.iter()
+    		.map(|s| format!("'{}'", s))
+    		.collect::<Vec<_>>()
+    		.join(", ")
+    );
+    let gsettings_custom_list	= ["set", "org.cinnamon.desktop.keybindings", "custom-list", &list_string];
+    let gsettings_name 			= ["set", &full_path, "name", "Emoji Picker"];
+    let gsettings_command		= ["set", &full_path, "command", "emoji-picker"];
+    let gsettings_binding		= ["set", &full_path, "binding", "['<Super>period']"];
+
+    let cmds = vec![
+    	("gsettings", &gsettings_custom_list[..]),
+    	("gsettings", &gsettings_name[..]),
+ 	   	("gsettings", &gsettings_command[..]),
+    	("gsettings", &gsettings_binding[..]),
+    ];
+    
     let erfolg = apply_gsettings(&cmds);
+
     let meldung = if erfolg {
     	"✅ Tastenkombination erfolgreich eingerichtet.\n\nDu kannst den Emoji Picker nun mit Super+. starten.\n\n🔁 Hinweis: Falls es nicht sofort klappt, drücke Alt+F2, tippe `r` und bestätige mit Enter.".into()
     } else {
@@ -165,7 +249,7 @@ fn setup_xfce() -> ShortcutErgebnis {
 fn setup_mate() -> ShortcutErgebnis {
     ShortcutErgebnis {
         desktop: "MATE".into(),
-        erfolg: true,
+        erfolg: false,
         meldung: "🛠 automatische Einrichtung nicht verfügbar.\n\n➡️ Bitte füge manuell eine Tastenkombination hinzu:\n    • Befehl: emoji-picker\n    • Tastenkombi: <Super>+.".into(),
     }
 }
@@ -173,7 +257,7 @@ fn setup_mate() -> ShortcutErgebnis {
 fn setup_kde() -> ShortcutErgebnis {
     ShortcutErgebnis {
         desktop: "KDE".into(),
-        erfolg: true,
+        erfolg: false,
         meldung: "🛠 Automatische Einrichtung nicht möglich.\n\nBitte öffne Systemeinstellungen → Tastenkombinationen → Benutzerdefiniert und füge den Befehl `emoji-picker` mit <Super>+. hinzu.".into(),
     }
 }
@@ -182,10 +266,10 @@ fn setup_gnome() -> ShortcutErgebnis {
     println!("🛠 Versuche, Tastenkombi <Super>+. zu setzen...");
 
     let cmds = vec![
-        ("gsettings", &["set", "org.gnome.settings-daemon.plugins.media-keys.custom-keybindings", "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']"][..]),
+        ("gsettings", &["set", "org.gnome.settings-daemon.plugins.media-keys", "custom-keybindings", "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']"][..]),
         ("gsettings", &["set", "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/", "name", "Emoji Picker"][..]),
         ("gsettings", &["set", "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/", "command", "emoji-picker"][..]),
-        ("gsettings", &["set", "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/", "binding", "['<Super>period']"][..]),
+        ("gsettings", &["set", "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/", "binding", "<Super>period"][..]),
     ];
 
 	let erfolg = apply_gsettings(&cmds);
