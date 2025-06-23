@@ -16,8 +16,6 @@ Ein schneller, einfacher Emoji-Picker für Linux (GTK-basiert, in Rust geschrieb
 * ✅ Erstkonfiguration beim ersten Start
 * 🚀 Leichtgewichtig & ohne unnötige Abhängigkeiten
 
----
-
 ## 📸 Screenshots
 
 ### Hauptfenster
@@ -31,8 +29,6 @@ Ein schneller, einfacher Emoji-Picker für Linux (GTK-basiert, in Rust geschrieb
 ### Optionsmenü
 
 ![Suche aktiv](screenshots/emoji-picker3.png)
-
----
 
 ## 🔧 Installation
 
@@ -52,8 +48,6 @@ cargo build --release
 
 Die fertige Binärdatei liegt dann in `target/release/emoji-picker`
 
----
-
 ## ⚙️ Konfiguration & Einstellungen
 
 Beim ersten Start wird unter `~/.config/emoji-picker/settings.ini` automatisch eine
@@ -68,8 +62,6 @@ emoji_size = 20                # Emoji-Größe in Pixeln
 ```
 Die Werte lassen sich direkt in der Datei oder über das Einstellungsmenü ändern.
 
----
-
 ## ⌨️ Tastenkombination einrichten
 
 Falls beim ersten Start keine Tastenkombination gesetzt wurde:
@@ -82,7 +74,28 @@ emoji-picker --setup	Alternativ im UI -> Einstellungen
 
 Diese legt die tastenkombination Super+. für den Emoji-Picker an.
 
----
+## 🎹 Tastenkombinationen im Emoji Picker
+
+| Aktion                            | Tastenkombination     |
+| --------------------------------- | --------------------- |
+| Emoji Picker starten              | `Super` + `.`         |
+| Nach Emojis suchen                | Einfach lostippen     |
+| Erstes Emoji auswählen & kopieren | `Enter`               |
+| Zwischen Kategorien wechseln      | `Tab`                 |
+| Emoji mit Pfeiltasten auswählen   | `←` / `→` / `↑` / `↓` |
+| Ausgewähltes Emoji einfügen       | `Enter`               |
+| Fenster schließen                 | `Esc`                 |
+
+🔍 Hinweise
+
+  🔹 Die Suche beginnt automatisch beim Tippen – keine extra Maus nötig.
+  🔹 Mit Enter wird das erste Ergebnis sofort in die Zwischenablage kopiert.
+  🔹 Die zuletzt genutzten Emojis findest du ganz links im Verlauf.
+  🔹 Per Drag & Drop kannst du Emojis auch direkt in andere Programme ziehen.
+
+💡 Bonus-Tipp
+
+Wenn du Drag & Drop nutzt, kannst du im Einstellungsfenster festlegen, ob das Picker-Fenster dabei offen bleiben soll.
 
 ## 📂 Speicherorte
 
@@ -94,8 +107,6 @@ Diese legt die tastenkombination Super+. für den Emoji-Picker an.
 | `/usr/share/emoji-picker/`                               | .css Datei für GUI-Fenster      |
 | `/etc/emoji-picker/`                                     | .list-Dateien als Vorlage       |
 | `~/.config/emoji-picker/`                                | Nutzerdaten (History, Settings) |
-
----
 
 ## 👨‍⚖️ Lizenz
 
