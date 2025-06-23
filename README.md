@@ -63,14 +63,6 @@ fenster_offen_bei_drag = true  # Fenster bei Drag & Drop geöffnet lassen
 emoji_size = 20                # Emoji-Größe in Pixeln
 ```
 Die Werte lassen sich direkt in der Datei oder über das Einstellungsmenü ändern.
-## ⌨️ Tastenkombination einrichten
-Falls beim ersten Start keine Tastenkombination gesetzt wurde:  
-getestet unter: Linux Mint 22.1 Cinnamon, Xfce, Mate, Kde, Gnome  
-Manuelle Konfig nötig: Mate & Kde
-```bash
-emoji-picker --setup	Alternativ im UI -> Einstellungen
-```
-Diese legt die Tastenkombination Super + . für den Emoji-Picker an.
 ## 🎹 Tastenkombinationen im Emoji Picker
 | Aktion                            | Tastenkombination     |
 | --------------------------------- | --------------------- |
