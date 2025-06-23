@@ -1,8 +1,8 @@
 Package: emoji-picker
-Version: 1.0.1
+Version: 1.1.2
 Section: utils
 Priority: optional
 Architecture: amd64
-Maintainer: Kai Thanner<kai-thanner@t-online.de>
+Maintainer: Kai Thanner
 Description: Schneller Emoji-Auswahldialog mit Suchfunktion, aufrufbar mit Super+.
 Depends: libgtk-4-1
