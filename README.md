@@ -12,47 +12,49 @@ Ein schneller, einfacher Emoji-Picker für Linux (GTK-basiert, in Rust geschrieb
 * 📑 Kategorien über Tabs organisiert
 * 📥 Klick oder Enter kopiert Emoji direkt in Zwischenablage
 * ⚙️ Einfache Konfiguration über das Einstellungsmenü
-* ⌨️ Aufrufbar per Tastenkombination (Super+.)
+* ⌨️ Aufrufbar per Tastenkombination Super + .
 * ✅ Erstkonfiguration beim ersten Start
 * 🚀 Leichtgewichtig & ohne unnötige Abhängigkeiten
+* **Verlauf**: zuletzt genutzte Emojis, klickbar oder über Suche
+* **Konfigurierbar**:
+  * Größe der Emojis einstellbar
+  * Verhalten: Fenster schließen oder offen bleiben nach Auswahl/Drag’n’Drop
+  * Shortcut erneut setzen über `→ Einstellungen → Tastenkürzel`
+* **GTK4 + Cross‑Desktop**: funktioniert unter GTK‑Desktops (GNOME, KDE, Cinnamon, XFCE…)
 
 ## 📸 Screenshots
 
-### Hauptfenster
-
+#### Hauptfenster
 ![Emoji Picker GUI](screenshots/emoji-picker1.png)
-
-### Suchfunktion aktiv
-
+#### Suchfunktion aktiv
 ![Suche aktiv](screenshots/emoji-picker2.png)
-
-### Optionsmenü
-
+#### Optionsmenü
 ![Suche aktiv](screenshots/emoji-picker3.png)
-
 ## 🔧 Installation
-
 ### .deb-Paket (empfohlen für Debian, Mint, Tuxedo, Ubuntu):
-
 ```bash
 sudo apt install ./emoji-picker_1.1.0_amd64.deb
 ```
-
 ### 💻 Manuell kompilieren:
-
 ```bash
 git clone https://github.com/kai-thanner/emoji-picker.git
 cd emoji-picker
 cargo build --release
 ```
-
 Die fertige Binärdatei liegt dann in `target/release/emoji-picker`
+## 🛠 CLI‑Optionen
+```bash
+emoji-picker [OPTIONS]
 
+Options:
+  -h, --help      Hilfe anzeigen
+  -V, --version   Versionsinfo (aktuelle Version: 1.1.2)
+  -S, --setup     Tastenkombination einrichten
+      --debug     Debug‑Logging aktivieren
+```
 ## ⚙️ Konfiguration & Einstellungen
-
 Beim ersten Start wird unter `~/.config/emoji-picker/settings.ini` automatisch eine
 Konfigurationsdatei erstellt:
-
 ```ini
 [Allgemein]
 setup_erledigt = true          # Ob das Setup bereits durchgeführt wurde
@@ -61,21 +63,15 @@ fenster_offen_bei_drag = true  # Fenster bei Drag & Drop geöffnet lassen
 emoji_size = 20                # Emoji-Größe in Pixeln
 ```
 Die Werte lassen sich direkt in der Datei oder über das Einstellungsmenü ändern.
-
 ## ⌨️ Tastenkombination einrichten
-
-Falls beim ersten Start keine Tastenkombination gesetzt wurde:
-getestet unter: Linux Mint 22.1 Cinnamon, Xfce, Mate, Kde, Gnome
+Falls beim ersten Start keine Tastenkombination gesetzt wurde:  
+getestet unter: Linux Mint 22.1 Cinnamon, Xfce, Mate, Kde, Gnome  
 Manuelle Konfig nötig: Mate & Kde
-
 ```bash
 emoji-picker --setup	Alternativ im UI -> Einstellungen
 ```
-
-Diese legt die tastenkombination Super+. für den Emoji-Picker an.
-
+Diese legt die Tastenkombination Super + . für den Emoji-Picker an.
 ## 🎹 Tastenkombinationen im Emoji Picker
-
 | Aktion                            | Tastenkombination     |
 | --------------------------------- | --------------------- |
 | Emoji Picker starten              | `Super` + `.`         |
@@ -85,18 +81,14 @@ Diese legt die tastenkombination Super+. für den Emoji-Picker an.
 | Emoji mit Pfeiltasten auswählen   | `←` / `→` / `↑` / `↓` |
 | Ausgewähltes Emoji einfügen       | `Enter`               |
 | Fenster schließen                 | `Esc`                 |
-
-🔍 Hinweise
-
+#### 🔍 Hinweise
   🔹 Die Suche beginnt automatisch beim Tippen – keine extra Maus nötig.  
   🔹 Mit Enter wird das erste Ergebnis sofort in die Zwischenablage kopiert.  
   🔹 Die zuletzt genutzten Emojis findest du ganz links im Verlauf.  
   🔹 Per Drag & Drop kannst du Emojis auch direkt in andere Programme ziehen.
 
-💡 Bonus-Tipp
-
+#### 💡 Bonus-Tipp
 Wenn du Drag & Drop nutzt, kannst du im Einstellungsfenster festlegen, ob das Picker-Fenster dabei offen bleiben soll.
-
 ## 📂 Speicherorte
 
 | Datei/Ordner                                             | Beschreibung                    |

@@ -24,7 +24,7 @@ use crate::shortcut::{detect_desktop, Desktop};
 
 fn main() {
     // Zeitmessung für Programmstart
-    let mut debug: u8 = 1;
+    let mut debug: u8 = 0;
     let timer = Instant::now();
 
     // Argumente abfangen
