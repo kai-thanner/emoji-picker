@@ -88,9 +88,9 @@ Diese legt die tastenkombination Super+. für den Emoji-Picker an.
 
 🔍 Hinweise
 
-  🔹 Die Suche beginnt automatisch beim Tippen – keine extra Maus nötig.
-  🔹 Mit Enter wird das erste Ergebnis sofort in die Zwischenablage kopiert.
-  🔹 Die zuletzt genutzten Emojis findest du ganz links im Verlauf.
+  🔹 Die Suche beginnt automatisch beim Tippen – keine extra Maus nötig.  
+  🔹 Mit Enter wird das erste Ergebnis sofort in die Zwischenablage kopiert.  
+  🔹 Die zuletzt genutzten Emojis findest du ganz links im Verlauf.  
   🔹 Per Drag & Drop kannst du Emojis auch direkt in andere Programme ziehen.
 
 💡 Bonus-Tipp
