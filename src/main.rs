@@ -2,6 +2,8 @@ mod settings;
 mod shortcut;
 mod emoji_tabs;
 mod suchlogik;
+mod i18n;
+mod gtk_theme;
 
 use gtk::prelude::*;
 use gtk::{
@@ -14,47 +16,63 @@ use std::{
     cell::RefCell,
     fs::{self, OpenOptions},
     io::Write,
-    path::{Path, PathBuf},
-    process::Command,
+    path::PathBuf,
     rc::Rc,
     time::{Instant, SystemTime},
 };
 
-use crate::shortcut::{detect_desktop, Desktop};
+use crate::i18n::Sprache;
 
 fn main() {
     // Zeitmessung für Programmstart
-    let mut debug: u8 = 0;
+    let args: Vec<String> = std::env::args().collect();
+    let debug: bool = if args.contains(&"--debug".to_string()) { true } else { false };
     let timer = Instant::now();
 
+    if debug {
+        println!("⏳ Debug output enabled, startup time {:?}", timer.elapsed());
+    }
+
+    // Argument --lang abfangen
+    let mut sprachcode: Option<String> = None;
+    for i in 0..args.len() {
+        if args[i] == "--lang" && i + 1 < args.len() {
+            sprachcode = Some(args[i + 1].clone());
+        }
+    }
+
+    // Sprachpaket laden
+    let sprachpaket = Rc::new(Sprache::sprache_erkennen(&sprachcode, debug));
+
+    if debug {
+        println!("⏳ {} {:?}", sprachpaket.debug_main_time_loading_language, timer.elapsed());
+    }
+
     // Argumente abfangen
-    let args: Vec<String> = std::env::args().collect();
     if args.contains(&"--setup".to_string()) || args.contains(&"-S".to_string()) {
-        shortcut::setup_shortcut();
+        shortcut::setup_shortcut(Rc::clone(&sprachpaket), debug);
         return;
     }
-    if args.contains(&"--debug".to_string()) || debug == 1 {
-        debug = 1;
-        println!("DEBUG: Aktiv, Programmstart bei {:?}", timer.elapsed());
-    }
-    if args.contains(&"--version".to_string()) || args.contains(&"-V".to_string()) || debug == 2 {
+
+    if args.contains(&"--version".to_string()) || args.contains(&"-V".to_string()) {
         println!("Emoji Picker 📦 Version: {}", env!("CARGO_PKG_VERSION"));
         println!("Copyright © 2025");
         println!("Lizenz: MIT"); 
         println!("Geschrieben von: {}", env!("CARGO_PKG_AUTHORS")); 
         std::process::exit(0);
     }
-    if args.contains(&"--help".to_string()) || args.contains(&"-h".to_string()) || debug == 3 {
+
+    if args.contains(&"--help".to_string()) || args.contains(&"-h".to_string()) {
         println!("\nUsage: emoji-picker [OPTIONS]");        
         println!("\nOptions:\n");        
         println!("-h,  --help              Print help");        
         println!("-V,  --version           Print version info and exit");
         println!("-S   --setup             Try to set keybinding");
-        println!("     --debug             For debugging");
+        println!("     --debug             Enable debug output");
         std::process::exit(0);
     }
 
-    pruefe_und_setze_gtk_theme_fuer_kde(debug);
+    crate::gtk_theme::pruefe_und_setze_gtk_theme_fuer_kde(Rc::clone(&sprachpaket), debug);
 
     let app: Application = Application::builder()
         .application_id("com.kai_thanner.emoji-picker")
@@ -64,7 +82,7 @@ fn main() {
         // Fenster erstellen
         let window = Rc::new(ApplicationWindow::builder()
             .application(app)
-            .title("Emoji-Auswahl")
+            .title(&sprachpaket.title)//.title("Emoji-Auswahl")
             .default_width(400)
             .default_height(400)
             .build()
@@ -75,10 +93,10 @@ fn main() {
         window.set_child(Some(&vbox));
      
         // CSS für UI laden
-        crate::emoji_tabs::lade_ui_css();
+        crate::emoji_tabs::lade_ui_css(Rc::clone(&sprachpaket), debug);
 
-        if debug == 1 {
-            println!("🖌 CSS-Datei geladen in: {:?}", timer.elapsed());
+        if debug {
+            println!("⏳ {}: {:?}", sprachpaket.debug_main_time_css_loading, timer.elapsed());
         }
 
         // 🔍 Suchfeld + ⚙️ Zahnrad-Button gemeinsam in Box
@@ -87,13 +105,13 @@ fn main() {
         // Suchfeld
         let suchfeld = Entry::new();
         suchfeld.add_css_class("search-entry");
-        suchfeld.set_placeholder_text(Some("🔍 Suche nach Symbolnamen..."));
+        suchfeld.set_placeholder_text(Some(&sprachpaket.search_placeholder));
         suchfeld.set_hexpand(true); // expandiert innerhalb der Zeile
         suchbox.append(&suchfeld);
 
         // Zahnrad-Button (Oder was der Desktop vorgibt)
         let settings_button = Button::from_icon_name("emblem-system-symbolic");
-        settings_button.set_tooltip_text(Some("Einstellungen"));
+        settings_button.set_tooltip_text(Some(&sprachpaket.settings_window));
         settings_button.set_margin_end(6);
         settings_button.set_margin_top(6);
         settings_button.set_size_request(28, 28);
@@ -110,8 +128,8 @@ fn main() {
         // Konfiguration zwischenspeichern
         let zeige_infofenster = !einstellungen.setup_erledigt.get();
 
-        if debug == 1 {
-            println!("einstellungen: {:?}", einstellungen);
+        if debug {
+            println!("📤 {}: {:?}", sprachpaket.debug_main_settings_infofenster, einstellungen);
         }
 
         // Notebook für Kategorien
@@ -167,11 +185,11 @@ fn main() {
 
         for (datei, _) in &kategorien {
             // .list Dateien anlegen falls nicht vorhanden
-            kopiere_von_etc_falls_fehlend(datei, &debug);
+            kopiere_von_etc_falls_fehlend(datei, Rc::clone(&sprachpaket), &debug);
         }
 
-        if debug == 1 {
-            println!("📁 /etc/emoji-picker Kopieren fertig nach {:?}", timer.elapsed());
+        if debug {
+            println!("⏳ /etc/emoji-picker {} {:?}", sprachpaket.debug_main_time_copy_from_etc, timer.elapsed());
         }
 
         // Symbole parallel Laden
@@ -182,19 +200,21 @@ fn main() {
             let einstellungen_settings_button = Rc::clone(&einstellungen);
             let window_settings_button = Rc::clone(&window);
             let emojies_daten_settings_button = Rc::clone(&emojies_daten);
+            let sprachpaket_settings_button = Rc::clone(&sprachpaket);
             settings_button.connect_clicked(move |_| {
                 settings::zeige_einstellungsfenster(
                     Rc::clone(&window_settings_button),
                     Rc::clone(&einstellungen_settings_button),
                     Rc::clone(&emojies_daten_settings_button),
+                    Rc::clone(&sprachpaket_settings_button),
                     debug,
                  );
                 settings::speichere_settings(&einstellungen_settings_button);
             });
         }
 
-        if debug == 1 {
-            println!("🙂 Emojis geladen in: {:?}", timer.elapsed());
+        if debug {
+            println!("⏳ {}: {:?}", sprachpaket.debug_main_time_emojis_load, timer.elapsed());
         }
 
         // Suchindex erstellen (flache Liste aller Symbole)
@@ -207,8 +227,8 @@ fn main() {
                 .collect::<Vec<_>>()
         );
 
-        if debug == 1 {
-            println!("🔍 Suchindex erstellt in: {:?}", timer.elapsed());
+        if debug {
+            println!("⏳ {}: {:?}", sprachpaket.debug_main_time_searchindex, timer.elapsed());
         }
 
         // Symbole in Kategorien einfügen, incl. Buttons, ToolTip und Drag&Drop
@@ -219,8 +239,8 @@ fn main() {
             Rc::clone(&einstellungen),
         );
 
-        if debug == 1 {
-            println!("📥 Emojis in Kategorien eingefügt in {:?}", timer.elapsed());
+        if debug {
+            println!("⏳ {} {:?}", sprachpaket.debug_main_time_categorize_emoji, timer.elapsed());
         }
 
         //Suchlogik
@@ -234,8 +254,8 @@ fn main() {
             Rc::clone(&einstellungen),
         );
 
-        if debug == 1 {
-            println!("🔍 Suchfeld erzeugt in {:?}", timer.elapsed());
+        if debug {
+            println!("⏳ {} {:?}", sprachpaket.debug_main_time_to_searchfield, timer.elapsed());
         }
 
         // Variabeln für Suchfunktion und verhalten der Entertaste
@@ -316,18 +336,22 @@ fn main() {
             }
         });
 
-        if debug == 1 {
-            println!("🕹 Fenstersteuerung erstellt in {:?}", timer.elapsed());
+        if debug {
+            println!("⏳ {} {:?}", sprachpaket.debug_main_time_set_window_keys, timer.elapsed());
         }
 
         window.add_controller(controller_tab);
         suchfeld.grab_focus();
 
         if zeige_infofenster {
-            shortcut::zeige_setup_dialog(window.as_ref(), &einstellungen, debug);
+            shortcut::zeige_setup_dialog(
+                window.as_ref(),
+                &einstellungen,
+                Rc::clone(&sprachpaket),
+                debug);
 
-            if debug == 1 {
-                println!("💡 Infofenster erstellt in {:?}", timer.elapsed());
+            if debug {
+                println!("⏳ {} {:?}", sprachpaket.debug_main_time_info_window, timer.elapsed());
             }
         }
 
@@ -335,12 +359,14 @@ fn main() {
         window.present();
         window.present();
 
-        if debug == 1 {
-            println!("🪟 UI erzeugt in {:?}", timer.elapsed());
+        if debug {
+            println!("⏳ {} {:?}", sprachpaket.debug_main_time_create_ui, timer.elapsed());
         }
     });
 
-    app.run();
+    let empty: Vec<String> = vec![];
+    app.run_with_args(&empty);
+    // app.run();
 }
 
 // ███████╗██╗   ██╗███╗   ██╗ ██████╗████████╗██╗ ██████╗ ███╗   ██╗
@@ -350,7 +376,7 @@ fn main() {
 // ██║     ╚██████╔╝██║ ╚████║╚██████╗   ██║   ██║╚██████╔╝██║ ╚████║
 // ╚═╝      ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
 
-fn kopiere_von_etc_falls_fehlend(dateiname: &str, debug: &u8) {
+fn kopiere_von_etc_falls_fehlend(dateiname: &str, sprachpaket: Rc<Sprache>, debug: &bool) {
     let ziel_pfad = dirs::config_dir()
         .unwrap_or_else(|| PathBuf::from("."))
         .join("emoji-picker")
@@ -372,16 +398,16 @@ fn kopiere_von_etc_falls_fehlend(dateiname: &str, debug: &u8) {
     if muss_kopieren {
         let _ = std::fs::create_dir_all(ziel_pfad.parent().unwrap());
         if let Err(e) = fs::copy(&etc_pfad, &ziel_pfad) {
-            eprintln!("❌ Fehler beim Kopieren von {}: {}", dateiname, e);
+            eprintln!("❌ {} {}: {}", sprachpaket.debug_main_list_fail_to_copy, dateiname, e);
         } else {
-            println!("📁 Aktualisiert aus /etc/emoji-picker: {}", dateiname);
+            println!("📁 {} /etc/emoji-picker: {}", sprachpaket.debug_main_list_copy_from_etc, dateiname);
         }
     }else if dateiname == "history.list" && !ziel_pfad.exists() {
         // 🆕 history.list erstellen wenn nicht schon vorhanden
         let _ = std::fs::create_dir_all(ziel_pfad.parent().unwrap());
         let _ = std::fs::write(&ziel_pfad, "");
-        if *debug == 1 {
-            println!("📁 Erstellt: {}", dateiname);
+        if *debug {
+            println!("📁 {}: {}", sprachpaket.debug_main_list_new_history, dateiname);
         }
     }
 
@@ -408,97 +434,4 @@ fn kopiere_und_schliesse(
     if schliessen {
         window.close();
     }
-}
-
-fn pruefe_und_setze_gtk_theme_fuer_kde(debug: u8) {
-    if !matches!(detect_desktop(), Desktop::Kde) {
-        return;
-    }
-
-    if let Some(theme_basis) = ermittle_kde_theme(debug) {
-        let gtk_theme = finde_kde_gtk_theme_schreibweise(&theme_basis, debug);
-
-        let theme_name = match gtk_theme {
-            Some(ref korrekt)   => {
-                if debug == 1 {
-                    println!("✅ GTK-Theme '{}' erkannt", korrekt);
-                }
-                korrekt.clone()
-            }
-            None                => {
-                // Fallback
-                let is_dark = kde_ist_dark_mode(&theme_basis, debug);
-                let fallback = if is_dark { "Breeze-Dark" } else { "Breeze" };
-
-                if debug == 1 {
-                    println!("❗️GTK-Theme '{}' nicht vollständig installiert. Fallback auf '{}'", theme_basis, fallback);
-                }
-                fallback.to_string()
-            }
-        };
-
-        // Funktion seit Rust 1.77 unsafe. Hier unbedenktlich da nicht Nebenläufig genutzt
-        unsafe {
-            std::env::set_var("GTK_THEME", &theme_name);
-        }
-
-        if debug == 1 {
-            println!("🎨 GTK-Theme wurde auf '{}' gesetzt", theme_name);
-        }
-
-    } else if debug == 1 {
-        println!("🚫 Kein KDE-Theme erkannt.");
-    }
-}
-
-fn ermittle_kde_theme(debug: u8) -> Option<String> {
-    let ausgabe = Command::new("kreadconfig5")
-        .args(&["--group", "Icons", "--key", "Theme"])
-        .output()
-        .ok()?;
-
-    let theme = String::from_utf8_lossy(&ausgabe.stdout).trim().to_string();
-    
-    if debug == 1 {
-        println!("DEBUG: Theme >> {}", theme);
-    }
-    
-    if !theme.is_empty() {
-        Some(theme)
-    } else {
-        None
-    }
-}
-
-fn finde_kde_gtk_theme_schreibweise(basisname: &str, debug: u8) -> Option<String> {
-    let theme_dir = "/usr/share/themes";
-    let dirs = fs::read_dir(theme_dir).ok()?;
-
-    for dir in dirs.flatten() {
-        let name = dir.file_name().to_string_lossy().to_string();
-
-        if debug == 1 {
-            println!("DEBUG: Theme-Ordner >> {}", name);
-        }
-
-        if name.to_lowercase() == basisname.to_lowercase() {
-            // z.B. breeze-dark -> Breeze-Dark
-            let theme_path = format!("{theme_dir}/{}/gtk-4.0", name);
-
-            if Path::new(&theme_path).exists() {
-                return Some(name); // das korrekt geschriebene Theme
-            }
-        }
-    }
-    None
-}
-
-fn kde_ist_dark_mode(theme_name: &str, debug: u8) -> bool {
-    let lower = theme_name.to_lowercase();
-
-    if debug == 1 {
-        println!("DEBUG: Dark-Mode in KDE? >> {}", theme_name);
-    }
-
-    lower.contains("dark") || lower.contains("night") || lower.contains("noir") || lower.contains("dunkel") || lower.contains("nacht") || lower.contains("schwarz")
 }

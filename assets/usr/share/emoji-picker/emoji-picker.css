@@ -11,7 +11,8 @@ button.emoji {
     padding: 6px;                   /* Button grösse */
     margin: 2px;                    /* Button abstand */
     border-radius: 12px;            /* Rundung der Buttons */
-    background-color: transparent;
+    border: none;                   /* Randlos */
+    background-color: transparent;  /* Transparent */
     transition: background-color 300ms ease-in-out; /* Hintergrund beim drüberhovern */
 }
 
@@ -28,10 +29,10 @@ label.kategorie-tab {
     padding: 4px 6px;
     border-radius: 6px;
     margin: 2px;
-    transition: background-color 150ms;
+    transition: background-color 150ms ease-in-out;
 }
 label.kategorie-tab:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Einstellungen: Verlauf reset */

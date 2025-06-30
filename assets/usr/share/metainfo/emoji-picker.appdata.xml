@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>emoji-picker.desktop</id>
+    <name>Emoji Picker</name>
+    <summary>Emoji-Auswahl mit Live-Suche</summary>
+    <description>
+        <p>Ein schneller, GTK4-basierter Emoji Picker mit Suchfunktion, Kategorien, History und Drag & Drop.</p>
+    </description>
+    <developer_name>Kai Thanner</developer_name>
+    <url type="homepage">https://github.com/kai-thanner/emoji-picker</url>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>MIT</project_license>
+    <provides>
+        <binary>emoji-picker</binary>
+    </provides>
+    <categories>
+        <category>Utility</category>
+    </categories>
+</component>

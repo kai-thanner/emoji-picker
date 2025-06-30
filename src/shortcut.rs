@@ -5,6 +5,7 @@ use std::process::Command;
 
 use crate::settings::Einstellungen; 
 use crate::settings;
+use crate::i18n::Sprache;
 
 #[derive(Debug, PartialEq)]
 pub enum Desktop {
@@ -23,8 +24,13 @@ pub struct ShortcutErgebnis {
 	pub meldung: String,
 }
 
-pub fn zeige_setup_dialog(fenster: &ApplicationWindow, einstellungen: &Rc<Einstellungen>, debug: u8) {
-	let shortcut_info = setup_shortcut();
+pub fn zeige_setup_dialog(
+	fenster: &ApplicationWindow,
+	einstellungen: &Rc<Einstellungen>,
+	sprachpaket: Rc<Sprache>,
+	debug: bool
+) {
+	let shortcut_info = setup_shortcut(Rc::clone(&sprachpaket), debug);
 
 	let dialog = MessageDialog::builder()
 		.transient_for(fenster)
@@ -32,9 +38,9 @@ pub fn zeige_setup_dialog(fenster: &ApplicationWindow, einstellungen: &Rc<Einste
 		.message_type(MessageType::Info)
 		.buttons(ButtonsType::Ok)
 		.text(&format!("{} - {}", shortcut_info.desktop, if shortcut_info.erfolg {
-	            "Einrichtung erfolgreich 🎉"
+	            sprachpaket.setup_done.clone() // "Einrichtung erfolgreich 🎉"
 	        } else {
-	            "Einrichtung fehlgeschlagen ❌"
+	            sprachpaket.setup_fail.clone() // "Einrichtung fehlgeschlagen ❌"
 	        }
 	    ))
 		.secondary_text(&shortcut_info.meldung)
@@ -51,22 +57,22 @@ pub fn zeige_setup_dialog(fenster: &ApplicationWindow, einstellungen: &Rc<Einste
     einstellungen.setup_erledigt.set(true);
     settings::speichere_settings(&einstellungen);
 
-    if debug == 1 {
-	    println!("💾 Setup wurde angezeigt. setup_erledigt auf true gesetzt");
+    if debug {
+	    println!("💾 {}", sprachpaket.debug_shortcut_set_info_window);
 	}
 }
 
-pub fn setup_shortcut() -> ShortcutErgebnis {
+pub fn setup_shortcut(sprachpaket: Rc<Sprache>, debug: bool) -> ShortcutErgebnis {
 	let ergebnis = match detect_desktop() {
-		Desktop::Cinnamon	=> setup_cinnamon(),
-		Desktop::Xfce		=> setup_xfce(),
-		Desktop::Mate 		=> setup_mate(),
-		Desktop::Kde		=> setup_kde(),
-		Desktop::Gnome		=> setup_gnome(),
+		Desktop::Cinnamon	=> setup_cinnamon(Rc::clone(&sprachpaket), debug),
+		Desktop::Xfce		=> setup_xfce(Rc::clone(&sprachpaket)),
+		Desktop::Mate 		=> setup_mate(Rc::clone(&sprachpaket)),
+		Desktop::Kde		=> setup_kde(Rc::clone(&sprachpaket)),
+		Desktop::Gnome		=> setup_gnome(Rc::clone(&sprachpaket)),
 		Desktop::Unbekannt	=> ShortcutErgebnis {
 			desktop: "Unbekannt".into(),
 			erfolg: false,
-			meldung: "🚫 Desktopumgebung nicht erkannt. Bitte manuell konfigurieren.".into(),
+			meldung: sprachpaket.set_desk_unknown.clone().into(),
 		},
 	};
 	ergebnis
@@ -95,7 +101,7 @@ pub fn detect_desktop() -> Desktop {
 	}
 }
 
-fn apply_gsettings(command: &[(&str, &[&str])]) -> bool {
+fn apply_gsettings(command: &[(&str, &[&str])], sprachpaket: Rc<Sprache>) -> bool {
 	let mut alles_ok = true;
 
     for (cmd, args) in command {
@@ -107,7 +113,7 @@ fn apply_gsettings(command: &[(&str, &[&str])]) -> bool {
             	alles_ok = false;
             },
             Err(e) => {
-            	eprintln!("❌ Fehler beim Aufruf von {}: {}", cmd, e);
+            	eprintln!("❌ {} {}: {}", sprachpaket.debug_shortcut_apply_gsettings_error, cmd, e);
             	alles_ok = false;
             }
         }
@@ -115,7 +121,7 @@ fn apply_gsettings(command: &[(&str, &[&str])]) -> bool {
     alles_ok
 }
 
-fn setup_cinnamon() -> ShortcutErgebnis {
+fn setup_cinnamon(sprachpaket: Rc<Sprache>, debug: bool) -> ShortcutErgebnis {
     println!("🛠 Versuche, Tastenkombi <Super>+. zu setzen...");
 
     // Bestehende Liste "Eigene Tastenkombinationen" abrufen
@@ -152,11 +158,13 @@ fn setup_cinnamon() -> ShortcutErgebnis {
     		if output.status.success() {
     			let raw = String::from_utf8_lossy(&output.stdout);
     			if raw.contains("emoji-picker") {
-    				println!("Emoji Picker bereits in '{}' eingetragen. Kein neuer Eintrag nötig", eintrag);
+    				if debug {
+    					println!("{}: {}", sprachpaket.debug_shortcut_cinna_already_done, eintrag);
+    				}
     				return ShortcutErgebnis {
     					desktop: "Cinnamon".into(),
     					erfolg: true,
-    					meldung: "✅ Tastenkombination war bereits vorhanden.".into(),
+    					meldung: sprachpaket.setup_exists.clone().into(),
     				};
     			}
     		}
@@ -199,12 +207,12 @@ fn setup_cinnamon() -> ShortcutErgebnis {
     	("gsettings", &gsettings_binding[..]),
     ];
 
-    let erfolg = apply_gsettings(&cmds);
+    let erfolg = apply_gsettings(&cmds, Rc::clone(&sprachpaket));
 
     let meldung = if erfolg {
-    	"✅ Tastenkombination erfolgreich eingerichtet.\n\nDu kannst den Emoji Picker nun mit Super+. starten.\n\n🔁 Hinweis: Falls es nicht sofort klappt, drücke Alt+F2, tippe `r` und bestätige mit Enter.".into()
+    	sprachpaket.setup_done_cinna.clone().into()
     } else {
-    	"‼️ Fehler bei der Einrichtung.\n\nBitte öffne die Tastenkombinationen und füge den Emoji Picker manuell hinzu.".into()
+    	sprachpaket.setup_fail_text.clone().into()
     };
 
     ShortcutErgebnis {
@@ -214,7 +222,7 @@ fn setup_cinnamon() -> ShortcutErgebnis {
     }
 }
 
-fn setup_xfce() -> ShortcutErgebnis {
+fn setup_xfce(sprachpaket: Rc<Sprache>) -> ShortcutErgebnis {
 	println!("🛠 XFCE: Versuche, Tastenkombi <Super>+. zu setzen...");
 
 	let status = Command::new("xfconf-query")
@@ -231,38 +239,38 @@ fn setup_xfce() -> ShortcutErgebnis {
 		Ok(s) if s.success() => ShortcutErgebnis {
 			desktop: "XFCE".into(),
 			erfolg: true,
-			meldung: "✅ Tastenkombination erfolgreich eingerichtet.\n\nDu kannst den Emoji Picker nun mit Super+. starten.".into(),
+			meldung: sprachpaket.setup_done_xfce_gno.clone().into(),
 		},
 		Ok(s) => ShortcutErgebnis {
 			desktop: "XFCE".into(),
 			erfolg: false,
-			meldung: format!("‼️ Fehler – exit code {}", s.code().unwrap_or(-1)),
+			meldung: format!("{} – exit code: {}", sprachpaket.setup_fail_xfce_1, s.code().unwrap_or(-1)),
 		},
 		Err(e) => ShortcutErgebnis {
 			desktop: "XFCE".into(),
 			erfolg: false,
-			meldung: format!("❌ Fehler beim Aufruf von xfconf-query: {}", e),
+			meldung: format!("{} xfconf-query: {}", sprachpaket.setup_fail_xfce_2, e),
 		},
 	}
 }
 
-fn setup_mate() -> ShortcutErgebnis {
+fn setup_mate(sprachpaket: Rc<Sprache>) -> ShortcutErgebnis {
     ShortcutErgebnis {
         desktop: "MATE".into(),
         erfolg: false,
-        meldung: "🛠 automatische Einrichtung nicht verfügbar.\n\n➡️ Bitte füge manuell eine Tastenkombination hinzu:\n    • Befehl: emoji-picker\n    • Tastenkombi: <Super>+.".into(),
+        meldung: sprachpaket.setup_not_available.clone().into(),
     }
 }
 
-fn setup_kde() -> ShortcutErgebnis {
+fn setup_kde(sprachpaket: Rc<Sprache>) -> ShortcutErgebnis {
     ShortcutErgebnis {
         desktop: "KDE".into(),
         erfolg: false,
-        meldung: "🛠 Automatische Einrichtung nicht möglich.\n\nBitte öffne Systemeinstellungen → Tastenkombinationen → Benutzerdefiniert und füge den Befehl `emoji-picker` mit <Super>+. hinzu.".into(),
+        meldung: sprachpaket.setup_not_available.clone().into(),
     }
 }
 
-fn setup_gnome() -> ShortcutErgebnis {
+fn setup_gnome(sprachpaket: Rc<Sprache>) -> ShortcutErgebnis {
     println!("🛠 Versuche, Tastenkombi <Super>+. zu setzen...");
 
     let cmds = vec![
@@ -272,11 +280,11 @@ fn setup_gnome() -> ShortcutErgebnis {
         ("gsettings", &["set", "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/", "binding", "<Super>period"][..]),
     ];
 
-	let erfolg = apply_gsettings(&cmds);
+	let erfolg = apply_gsettings(&cmds, Rc::clone(&sprachpaket));
 	let meldung = if erfolg {
-	    "✅ Tastenkombination erfolgreich eingerichtet.\n\nDu kannst den Emoji Picker nun mit Super+. starten.".into()
+	    sprachpaket.setup_done_xfce_gno.clone().into()
 	} else {
-	    "‼️ Fehler bei der Einrichtung.\n\nBitte öffne die Tastenkombinationen und füge den Emoji Picker manuell hinzu.".into()
+	    sprachpaket.setup_fail_text.clone().into()
 	};
 
     ShortcutErgebnis {

@@ -11,6 +11,7 @@ use std::{
 };
 
 use crate::{settings::Einstellungen, kopiere_und_schliesse};
+use crate::i18n::Sprache;
 
 #[derive(Clone)]
 pub struct Symbol {
@@ -151,7 +152,7 @@ fn lade_emojies(dateiname: &str) -> Vec<Symbol> {
         sortiert.sort_by(|a, b| b.1.0.cmp(&a.1.0)); // Nach Häufigkeit absteigend
         
         sortiert.into_iter()
-            .take(30)                   // auf die 30 häufigsten Begrenzt
+            .take(100)                   // auf die 100 häufigsten Begrenzt
             .map(|(emoji, (_, begriffe))| Symbol { emoji, begriffe })
             .collect()
     } else {   
@@ -167,12 +168,20 @@ fn lade_emojies(dateiname: &str) -> Vec<Symbol> {
     }
 }
 
-pub fn lade_ui_css() {
+pub fn lade_ui_css(sprachpaket: Rc<Sprache>, debug: bool) {
 	let global_css = CssProvider::new();
-    for pfad in [
-        "/usr/share/emoji-picker/emoji-picker.css",
-        "./assets/usr/share/emoji-picker/emoji-picker.css" // nur für Entwicklung
-    ] {
+    let css_pfade = if cfg!(debug_assertions) {
+        vec![   // nur für Entwicklung
+            PathBuf::from(format!("../assets/usr/share/emoji-picker/emoji-picker.css")),    // // start aus emoji-picker/src/
+            PathBuf::from(format!("./assets/usr/share/emoji-picker/emoji-picker.css")),     // start aus emoji-picker/
+        ]
+    } else {
+        vec![  
+            PathBuf::from(format!("/usr/share/emoji-picker/emoji-picker.css"))
+        ]
+    };
+
+    for pfad in &css_pfade {
         if fs::metadata(pfad).is_ok() {
             global_css.load_from_path(pfad);
             gtk::style_context_add_provider_for_display(
@@ -180,9 +189,14 @@ pub fn lade_ui_css() {
                 &global_css,
                 STYLE_PROVIDER_PRIORITY_APPLICATION,
             );
+            if debug {
+                println!("📤 {}: {:?}", sprachpaket.debug_emoji_tabs_use_css, pfad);
+            }
             break;
         } else {
-            eprintln!("🚫 CSS-Datei nicht gefunden: {}", pfad);
+            if debug {
+                eprintln!("🚫 {}: {:?}", sprachpaket.debug_emoji_tabs_css_failure, pfad);
+            }
         }
     }
 }
@@ -222,7 +236,7 @@ pub fn leere_history_tab(
         }
     }
 
-    // Optional: history.list wirklich leeren
+    // history.list leeren
     let mut pfad = dirs::config_dir().unwrap_or_else(|| PathBuf::from("."));
     pfad.push("emoji-picker/history.list");
     let _ = std::fs::write(pfad, "");

@@ -1,7 +1,7 @@
-# 👻 Emoji-Picker v1.1.2
+# 👻 Emoji-Picker v1.1.9
 ![Rust](https://img.shields.io/badge/Rust-1.87-orange?logo=rust)
 ![GTK4](https://img.shields.io/badge/GTK-4.x-blue?logo=gnome)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat)  
 Ein schneller, einfacher Emoji-Picker für Linux (GTK-basiert, in Rust geschrieben).
 
 ## 💡 Features
@@ -26,10 +26,17 @@ Ein schneller, einfacher Emoji-Picker für Linux (GTK-basiert, in Rust geschrieb
 #### Optionsmenü
 ![Einstellungsfenster](screenshots/emoji-picker3.png)
 
+## 🌍 Unterstützte Sprachen
+* Englisch      -   english
+* Deutsch       -   german
+* Französisch   -   france
+* Spanisch      -   spain
+* Chinesisch    -   chinese
+
 ## 🔧 Installation
 ### .deb-Paket (empfohlen für Debian, Mint, Tuxedo, Ubuntu):
 ```bash
-sudo apt install ./emoji-picker_1.1.2_amd64.deb
+sudo apt install ./emoji-picker_x.x.x_amd64.deb
 ```
 ### 💻 Manuell kompilieren:
 ```bash
@@ -45,7 +52,7 @@ emoji-picker [OPTIONS]
 
 Options:
   -h, --help      Hilfe anzeigen
-  -V, --version   Versionsinfo (aktuelle Version: 1.1.2)
+  -V, --version   Versionsinfo
   -S, --setup     Tastenkombination einrichten
       --debug     Debug‑Logging aktivieren
 ```
@@ -85,6 +92,7 @@ Wenn du Drag & Drop nutzt, kannst du im Einstellungsfenster festlegen, ob das Pi
 | `/usr/share/applications/emoji-picker.desktop`           | Eintrag im Startmenü            |
 | `/usr/share/icons/hicolor/_x_/apps/emoji-picker.png` 	   | Icons 16x16 - 512x512           |
 | `/usr/share/emoji-picker/`                               | .css Datei für GUI-Fenster      |
+| `/usr/share/emoji-picker/locale/`                        | .json Dateien = Sprachdateien   |
 | `/etc/emoji-picker/`                                     | .list-Dateien als Vorlage       |
 | `~/.config/emoji-picker/`                                | Nutzerdaten (History, Settings) |
 
