@@ -21,11 +21,11 @@
   "label_language":          "Dil:",
   "button_cancel":           "İptal",
   "button_ok":               "Tamam",
+  "restart_after_change":    "Dili etkinleştirmek için Emoji Picker'ı yeniden başlatın.",
   
   "debug_main_time_loading_language":      "Dil paketi yüklendi:",
   "debug_main_list_fail_to_copy":          "Kopyalama hatası:",
   "debug_main_list_copy_from_etc":         "Şuradan güncellendi:",
-  "debug_main_list_new_history":           "Yeni geçmiş oluşturuldu",
   "debug_main_time_css_loading":           "CSS dosyası yüklendi:",
   "debug_main_settings_infofenster":       "Ayarlar yüklendi (bilgi penceresi)",
   "debug_main_time_copy_from_etc":         "Kopyalama tamamlandı:",
@@ -39,6 +39,7 @@
 
   "debug_emoji_tabs_use_css":              "CSS dosyası kullanılıyor",
   "debug_emoji_tabs_css_failure":          "CSS dosyası bulunamadı",
+  "debug_emoji_tabs_clear_history":        "Geçmiş başarıyla temizlendi",
 
   "debug_shortcut_set_info_window":        "Kurulum gösterildi ve settings.ini'ye kaydedildi",
   "debug_shortcut_apply_gsettings_error":  "Komut hatası:",

@@ -1,5 +1,5 @@
 Package: emoji-picker
-Version: 1.1.9
+Version: 1.2.1
 Description: Schneller Emoji-Auswahldialog mit Suchfunktion, aufrufbar mit Super+.
  Eine GTK4-Anwendung mit Live-Suche, Drag & Drop und System-Integration.
  Unterstützt Tastenkombinationen, History-Tab und KDE/GTK-Theming.

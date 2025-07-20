@@ -1,4 +1,4 @@
-# 👻 Emoji-Picker v1.1.9
+# 👻 Emoji-Picker v1.2.3
 ![Rust](https://img.shields.io/badge/Rust-1.87-orange?logo=rust)
 ![GTK4](https://img.shields.io/badge/GTK-4.x-blue?logo=gnome)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat)  
@@ -84,6 +84,30 @@ Die Werte lassen sich direkt in der Datei oder über das Einstellungsmenü ände
   🔹 Per Drag & Drop kannst du Emojis auch direkt in andere Programme ziehen.
 #### 💡 Bonus-Tipp
 Wenn du Drag & Drop nutzt, kannst du im Einstellungsfenster festlegen, ob das Picker-Fenster dabei offen bleiben soll.
+
+## 🌎 Verfügbare Sprachen
+| 🗺️ Flagge | Code   | Sprache        |
+|-----------|--------|----------------|
+| 🇩🇪        | de     | Deutsch        |
+| 🇬🇧        | en-GB  | Englisch (UK)  |
+| 🇺🇸        | en-US  | Englisch (US)  |
+| 🇫🇷        | fr     | Französisch    |
+| 🇪🇸        | es     | Spanisch       |
+| 🇮🇹        | it     | Italienisch    |
+| 🇳🇱        | nl     | Niederländisch |
+| 🇵🇹        | pt     | Portugiesisch  |
+| 🇧🇷        | pt-BR  | Portugiesisch (BR) |
+| 🇩🇰        | da     | Dänisch        |
+| 🇸🇪        | sv     | Schwedisch     |
+| 🇳🇴        | nb     | Norwegisch     |
+| 🇫🇮        | fi     | Finnisch       |
+| 🇵🇱        | pl     | Polnisch       |
+| 🇺🇦        | uk     | Ukrainisch     |
+| 🇷🇺        | ru     | Russisch       |
+| 🇹🇷        | tr     | Türkisch       |
+| 🇯🇵        | ja     | Japanisch      |
+| 🇨🇳        | zh     | Chinesisch     |
+| 🇸🇦        | ar     | Arabisch       |
 
 ## 📂 Speicherorte
 | Datei/Ordner                                             | Beschreibung                    |

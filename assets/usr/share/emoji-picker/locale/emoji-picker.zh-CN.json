@@ -21,11 +21,11 @@
   "label_language":          "语言：",
   "button_cancel":           "取消",
   "button_ok":               "确定",
+  "restart_after_change":    "请重新启动 Emoji Picker 以应用语言更改。",
   
   "debug_main_time_loading_language":      "语言包加载时间",
   "debug_main_list_fail_to_copy":          "复制失败：",
   "debug_main_list_copy_from_etc":         "更新自",
-  "debug_main_list_new_history":           "新建历史记录",
   "debug_main_time_css_loading":           "CSS 加载时间",
   "debug_main_settings_infofenster":       "已加载的信息窗口设置",
   "debug_main_time_copy_from_etc":         "复制完成时间",
@@ -39,6 +39,7 @@
 
   "debug_emoji_tabs_use_css":              "使用 CSS 文件",
   "debug_emoji_tabs_css_failure":          "未找到 CSS 文件",
+  "debug_emoji_tabs_clear_history":        "历史记录已成功清除",
 
   "debug_shortcut_set_info_window":        "设置窗口已显示并记录到 settings.ini",
   "debug_shortcut_apply_gsettings_error":  "调用错误：",

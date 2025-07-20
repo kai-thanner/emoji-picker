@@ -21,11 +21,11 @@
   "label_language":          "言語：",
   "button_cancel":           "キャンセル",
   "button_ok":               "OK",
+  "restart_after_change":    "言語を反映するには Emoji Picker を再起動してください。",
   
   "debug_main_time_loading_language":      "言語パックの読み込み時間",
   "debug_main_list_fail_to_copy":          "コピーエラー：",
   "debug_main_list_copy_from_etc":         "次から更新：",
-  "debug_main_list_new_history":           "新しい履歴を作成",
   "debug_main_time_css_loading":           "CSS 読み込み時間",
   "debug_main_settings_infofenster":       "情報ウィンドウの設定を読み込みました",
   "debug_main_time_copy_from_etc":         "コピー完了時間",
@@ -39,6 +39,7 @@
 
   "debug_emoji_tabs_use_css":              "CSS ファイルを使用",
   "debug_emoji_tabs_css_failure":          "CSS ファイルが見つかりませんでした",
+  "debug_emoji_tabs_clear_history":        "履歴が正常に消去されました",
 
   "debug_shortcut_set_info_window":        "セットアップが表示され、settings.ini に記録されました",
   "debug_shortcut_apply_gsettings_error":  "コマンド実行エラー",

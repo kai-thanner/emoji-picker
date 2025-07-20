@@ -1,6 +1,6 @@
 [package]
 name         = "emoji-picker"
-version      = "1.1.9"
+version      = "1.2.3"
 edition      = "2024"
 description  = "Emoji picker GUI tool written in Rust and GTK4"
 authors      = ["Kai Thanner"]
@@ -16,6 +16,7 @@ itertools   = "0.14"
 rayon       = "1.10"
 serde       = { version = "1.0", features = ["derive"] }
 serde_json  = "1.0"
+dbus        = "0.9"
 
 # ██████╗ ███████╗██████╗     ██████╗  █████╗ ██╗  ██╗███████╗████████╗
 # ██╔══██╗██╔════╝██╔══██╗    ██╔══██╗██╔══██╗██║ ██╔╝██╔════╝╚══██╔══╝

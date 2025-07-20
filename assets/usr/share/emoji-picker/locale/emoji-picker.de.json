@@ -21,11 +21,11 @@
   "label_language":          "Sprache:",
   "button_cancel":           "Abbrechen",
   "button_ok":               "Ok",
+  "restart_after_change":    "Bitte Emijo-Piker neu starten, um die Sprache zu aktivieren.",
 
   "debug_main_time_loading_language":      "Sprachpaket geladen in",
   "debug_main_list_fail_to_copy":          "Fehler beim Kopieren von",
   "debug_main_list_copy_from_etc":         "Aktualisiert aus",
-  "debug_main_list_new_history":           "Neu erstellt",
   "debug_main_time_css_loading":           "CSS-Datei geladen in",
   "debug_main_settings_infofenster":       "Folgende Einstellungen wurden für das Infofenster geladen",
   "debug_main_time_copy_from_etc":         "Kopieren abgeschlossen in",
@@ -39,6 +39,7 @@
 
   "debug_emoji_tabs_use_css":              "Nutze CSS-Datei",
   "debug_emoji_tabs_css_failure":          "CSS-Datei nicht gefunden",
+  "debug_emoji_tabs_clear_history":        "Verlauf wurde erfolgreich geleert",
 
   "debug_shortcut_set_info_window":        "Setup wurde angezeigt und in settings.ini vermerkt",
   "debug_shortcut_apply_gsettings_error":  "Fehler beim Aufruf von",

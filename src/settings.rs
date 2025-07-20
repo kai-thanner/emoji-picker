@@ -12,7 +12,7 @@ use std::{
 };
 
 use crate::shortcut;
-use crate::emoji_tabs::*; 
+use crate::emoji_tabs::Symbol;
 use crate::i18n::Sprache;
 
 #[derive(Clone, Debug)]
@@ -132,9 +132,10 @@ pub fn zeige_einstellungsfenster(
 	verlauf_button.add_css_class("verlauf-reset");
 
 	{
+		let sprachpaket_reset_history = Rc::clone(&sprachpaket);
 		let emojies_daten = Rc::clone(&emojies_daten);
 		verlauf_button.connect_clicked(move |_| {
-			crate::emoji_tabs::leere_history_tab(&[("history.list", "🕓")], &emojies_daten);
+			crate::emoji_tabs::leere_history_tab(&emojies_daten, Rc::clone(&sprachpaket_reset_history), debug);
 		});
 	}
 

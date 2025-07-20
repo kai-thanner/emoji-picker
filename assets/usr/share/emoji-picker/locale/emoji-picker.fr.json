@@ -21,11 +21,11 @@
   "label_language":          "Langue :",
   "button_cancel":           "Annuler",
   "button_ok":               "Ok",
+  "restart_after_change":    "Veuillez redémarrer Emoji Picker pour appliquer la langue.",
   
   "debug_main_time_loading_language":      "Pack de langue chargé en",
   "debug_main_list_fail_to_copy":          "Erreur lors de la copie depuis",
   "debug_main_list_copy_from_etc":         "Mis à jour depuis",
-  "debug_main_list_new_history":           "Nouvel historique créé",
   "debug_main_time_css_loading":           "Fichier CSS chargé en",
   "debug_main_settings_infofenster":       "Paramètres chargés pour la fenêtre d’information",
   "debug_main_time_copy_from_etc":         "Copie terminée en",
@@ -39,6 +39,7 @@
 
   "debug_emoji_tabs_use_css":              "Utilisation du fichier CSS",
   "debug_emoji_tabs_css_failure":          "Fichier CSS introuvable",
+  "debug_emoji_tabs_clear_history":        "Historique effacé avec succès",
 
   "debug_shortcut_set_info_window":        "Configuration affichée et notée dans settings.ini",
   "debug_shortcut_apply_gsettings_error":  "Erreur lors de l’appel de",

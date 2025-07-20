@@ -21,11 +21,11 @@
   "label_language":          "Taal:",
   "button_cancel":           "Annuleren",
   "button_ok":               "Ok",
+  "restart_after_change":    "Herstart Emoji Picker om de taal toe te passen.",
   
   "debug_main_time_loading_language":      "Taalpakket geladen in",
   "debug_main_list_fail_to_copy":          "Fout bij kopiëren van",
   "debug_main_list_copy_from_etc":         "Bijgewerkt van",
-  "debug_main_list_new_history":           "Nieuwe geschiedenis aangemaakt",
   "debug_main_time_css_loading":           "CSS-bestand geladen in",
   "debug_main_settings_infofenster":       "Instellingen geladen voor informatievenster",
   "debug_main_time_copy_from_etc":         "Kopiëren voltooid in",
@@ -39,6 +39,7 @@
 
   "debug_emoji_tabs_use_css":              "CSS-bestand gebruiken",
   "debug_emoji_tabs_css_failure":          "CSS-bestand niet gevonden",
+  "debug_emoji_tabs_clear_history":        "Geschiedenis succesvol gewist",
 
   "debug_shortcut_set_info_window":        "Instellen weergegeven en opgeslagen in settings.ini",
   "debug_shortcut_apply_gsettings_error":  "Fout bij aanroepen van",

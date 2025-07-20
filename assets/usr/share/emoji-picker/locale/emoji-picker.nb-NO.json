@@ -21,11 +21,11 @@
   "label_language":          "Språk:",
   "button_cancel":           "Avbryt",
   "button_ok":               "OK",
+  "restart_after_change":    "Start Emoji Picker på nytt for å bruke språket.",
   
   "debug_main_time_loading_language":      "Språkpakke lastet inn på",
   "debug_main_list_fail_to_copy":          "Feil ved kopiering fra",
   "debug_main_list_copy_from_etc":         "Oppdatert fra",
-  "debug_main_list_new_history":           "Ny historikk opprettet",
   "debug_main_time_css_loading":           "CSS-fil lastet inn på",
   "debug_main_settings_infofenster":       "Følgende innstillinger ble lastet inn for informasjonsvinduet",
   "debug_main_time_copy_from_etc":         "Kopiering fullført på",
@@ -39,6 +39,7 @@
   
   "debug_emoji_tabs_use_css":              "Bruker CSS-fil",
   "debug_emoji_tabs_css_failure":          "CSS-fil ikke funnet",
+  "debug_emoji_tabs_clear_history":        "Historikk ble tømt",
   
   "debug_shortcut_set_info_window":        "Oppsett vist og lagret i settings.ini",
   "debug_shortcut_apply_gsettings_error":  "Feil ved kall av",

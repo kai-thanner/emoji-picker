@@ -21,11 +21,11 @@
   "label_language":          "Язык:",
   "button_cancel":           "Отмена",
   "button_ok":               "Ок",
+  "restart_after_change":    "Перезапустите Emoji Picker, чтобы применить язык.",
   
   "debug_main_time_loading_language":      "Языковой пакет загружен за",
   "debug_main_list_fail_to_copy":          "Ошибка при копировании из",
   "debug_main_list_copy_from_etc":         "Обновлено из",
-  "debug_main_list_new_history":           "Создана новая история",
   "debug_main_time_css_loading":           "Файл CSS загружен за",
   "debug_main_settings_infofenster":       "Загружены следующие параметры для информационного окна",
   "debug_main_time_copy_from_etc":         "Копирование завершено за",
@@ -39,6 +39,7 @@
   
   "debug_emoji_tabs_use_css":              "Используется файл CSS",
   "debug_emoji_tabs_css_failure":          "Файл CSS не найден",
+  "debug_emoji_tabs_clear_history":        "История успешно очищена",
   
   "debug_shortcut_set_info_window":        "Окно настройки отображено и записано в settings.ini",
   "debug_shortcut_apply_gsettings_error":  "Ошибка при вызове",

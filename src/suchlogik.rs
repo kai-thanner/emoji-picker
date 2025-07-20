@@ -1,9 +1,10 @@
 use gtk::prelude::*;
 use gtk::{Button, Grid, Stack};
 use glib::source::idle_add_local;
-use std::{cell::Cell, rc::Rc};
+use std::{cell::{Cell, RefCell}, collections::HashMap, rc::Rc};
 
-use crate::{emoji_tabs::Symbol, kopiere_und_schliesse, settings::Einstellungen};
+use crate::emoji_tabs::{Symbol, speichere_kopiere_und_schliesse};
+use crate::settings::Einstellungen;
 
 // ╔══════════════════════════════════════════════════════════════╗
 // ║                     Ablauf: Emoji-Suchlogik                  ║
@@ -64,6 +65,7 @@ pub fn verbinde_suchfeld(
     clipboard: Rc<gtk::gdk::Clipboard>,
     window: Rc<gtk::ApplicationWindow>,
     einstellungen: Rc<Einstellungen>,
+    emojies_daten: Rc<RefCell<HashMap<String, (Vec<Symbol>, Rc<Grid>)>>>,
 ) {
     let pending = Rc::new(Cell::new(false));
 
@@ -92,6 +94,7 @@ pub fn verbinde_suchfeld(
             let stack = stack.clone();
             let pending = Rc::clone(&pending);
             let einstellungen = Rc::clone(&einstellungen);
+            let emojies_daten_idle_add_local = Rc::clone(&emojies_daten);
 
             idle_add_local(move || {
                 pending.set(false);
@@ -125,7 +128,6 @@ pub fn verbinde_suchfeld(
                 let mut i = 0;
                 for symbol in such_index.iter() {
                     let joined = symbol.begriffe.join("").to_lowercase();
-                    let begriffe = symbol.begriffe.clone();
                     let begriffe_vec = symbol.begriffe.iter().map(|s| s.to_lowercase()).collect::<Vec<_>>();
 
                     let kombis_fenster = if begriffe_vec.len() >= 2 {
@@ -165,9 +167,17 @@ pub fn verbinde_suchfeld(
                     let emoji = symbol.emoji.clone();
                     let clipboard = Rc::clone(&clipboard);
                     let window = Rc::clone(&window);
+                    let emojies_daten_connect_clicked = Rc::clone(&emojies_daten_idle_add_local);
 
                     button.connect_clicked(move |_| {
-                        kopiere_und_schliesse(&emoji, &clipboard, &window, schliessen, &begriffe);
+                        speichere_kopiere_und_schliesse(
+                            &emoji,
+                            Rc::clone(&emojies_daten_connect_clicked),
+                            None,
+                            Some(&clipboard),
+                            &window,
+                            schliessen,
+                        );
                     });
 
                     let row = i / 15;

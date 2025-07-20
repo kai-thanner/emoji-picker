@@ -1,29 +1,41 @@
+mod dbus_api;
+mod emoji_tabs;
+mod gtk_theme;
+mod i18n;
 mod settings;
 mod shortcut;
-mod emoji_tabs;
 mod suchlogik;
-mod i18n;
-mod gtk_theme;
 
 use gtk::prelude::*;
 use gtk::{
     Application, ApplicationWindow, Box as GtkBox, Button, Entry,
     EventControllerKey, Grid, Notebook, Orientation, PolicyType, ScrolledWindow, Stack,
 };
-use gtk::gdk::{self, Clipboard};
+use gtk::gdk;
 use glib::clone;
+use glib::ControlFlow::Continue;
 use std::{
     cell::RefCell,
-    fs::{self, OpenOptions},
-    io::Write,
+    fs::self,
     path::PathBuf,
     rc::Rc,
+    sync::{Arc, Mutex, mpsc::{channel, Sender, Receiver}},
     time::{Instant, SystemTime},
 };
 
 use crate::i18n::Sprache;
+use dbus_api::{ pruefe_ob_picker_laeuft, starte_dbus_service };
 
 fn main() {
+    pruefe_ob_picker_laeuft();
+    
+    let (dbus_tx, dbus_rx): (Sender<&'static str>, Receiver<&'static str>) = channel();
+    let dbus_rx = Arc::new(Mutex::new(dbus_rx));
+
+    std::thread::spawn(move || {
+        starte_dbus_service(dbus_tx);
+    });
+
     // Zeitmessung für Programmstart
     let args: Vec<String> = std::env::args().collect();
     let debug: bool = if args.contains(&"--debug".to_string()) { true } else { false };
@@ -75,7 +87,7 @@ fn main() {
     crate::gtk_theme::pruefe_und_setze_gtk_theme_fuer_kde(Rc::clone(&sprachpaket), debug);
 
     let app: Application = Application::builder()
-        .application_id("com.kai_thanner.emoji-picker")
+        .application_id("de.kai_thanner.emoji-picker")
         .build();
 
     app.connect_activate(move |app| {
@@ -87,6 +99,19 @@ fn main() {
             .default_height(400)
             .build()
         );
+
+        // Channel im GTK-Thread empfangen!
+        let win_dbus = window.clone();
+        let dbus_rx_check = dbus_rx.clone();
+        glib::timeout_add_local(std::time::Duration::from_millis(100), move || {
+            if let Ok(msg) = dbus_rx_check.lock().unwrap().try_recv() {
+                if msg == "show_window" {
+                    // win_dbus.present();
+                    win_dbus.close();
+                }
+            }
+            Continue
+        });
 
         // Hauptlayout
         let vbox = GtkBox::new(Orientation::Vertical, 5);
@@ -164,7 +189,6 @@ fn main() {
 
         // Kategorien
         let kategorien = vec![
-            ("history.list",    "🕓"),
             ("smileys.list",    "😄"),
             ("peoples.list",    "👨"),
             ("animals.list",    "🐰"),
@@ -195,13 +219,35 @@ fn main() {
         // Symbole parallel Laden
         let emojies_daten = Rc::new(RefCell::new(emoji_tabs::erstelle_tabs(&notebook, &kategorien[..], emoji_size)));
 
+        // Nachträglich: History generieren (nachdem alles geladen ist)
+        let (history_symbole, history_grid) = emoji_tabs::generiere_history_kategorie(&emojies_daten.borrow());
+        emojies_daten.borrow_mut().insert("🕓".to_string(), (history_symbole, Rc::clone(&history_grid)));
+
+        // Tab mit History-Grid ins Notebook einfügen
+        let scroll = ScrolledWindow::new();
+        scroll.set_policy(PolicyType::Never, PolicyType::Automatic);
+        scroll.set_child(Some(&*history_grid));
+
+        let label_widget = gtk::Label::new(Some("🕓"));
+        label_widget.add_css_class("kategorie-tab");
+        emoji_tabs::aktualisiere_tablabel_style(emoji_size);
+
+        notebook.insert_page(&scroll, Some(&label_widget), Some(0)); // Ganz oben (Index 0)
+        notebook.set_current_page(Some(0));
+        
         // Einstellungsfenster öffnen nachdem alles geladen wurde
         {
             let einstellungen_settings_button = Rc::clone(&einstellungen);
             let window_settings_button = Rc::clone(&window);
             let emojies_daten_settings_button = Rc::clone(&emojies_daten);
             let sprachpaket_settings_button = Rc::clone(&sprachpaket);
+
+            let window_settings_button_2 = Rc::clone(&window);
+            let sprachpaket_settings_button_2 = Rc::clone(&sprachpaket);
+
             settings_button.connect_clicked(move |_| {
+                let sprache_vor_einstellungen = einstellungen_settings_button.sprache.borrow().clone();
+
                 settings::zeige_einstellungsfenster(
                     Rc::clone(&window_settings_button),
                     Rc::clone(&einstellungen_settings_button),
@@ -210,12 +256,22 @@ fn main() {
                     debug,
                  );
                 settings::speichere_settings(&einstellungen_settings_button);
+                
+                let sprache_nach_einstellungen = einstellungen_settings_button.sprache.borrow();
+
+                if *sprache_nach_einstellungen != sprache_vor_einstellungen {
+                    neustart(
+                        Rc::clone(&window_settings_button_2),
+                        Rc::clone(&sprachpaket_settings_button_2),
+                    );
+                }
             });
         }
 
         if debug {
             println!("⏳ {}: {:?}", sprachpaket.debug_main_time_emojis_load, timer.elapsed());
         }
+
 
         // Suchindex erstellen (flache Liste aller Symbole)
         let such_index = Rc::new(
@@ -233,7 +289,7 @@ fn main() {
 
         // Symbole in Kategorien einfügen, incl. Buttons, ToolTip und Drag&Drop
         emoji_tabs::fuege_emojis_ein(
-            &emojies_daten.borrow(),
+            Rc::clone(&emojies_daten),
             Rc::clone(&clipboard),
             Rc::clone(&window),
             Rc::clone(&einstellungen),
@@ -252,6 +308,7 @@ fn main() {
             Rc::clone(&clipboard),
             Rc::clone(&window),
             Rc::clone(&einstellungen),
+            Rc::clone(&emojies_daten),
         );
 
         if debug {
@@ -266,40 +323,68 @@ fn main() {
         #[allow(deprecated)]                        // glib wird gerade umgebaut, daher gibt es Warnungen für clone!. Bei nächstem Update auf Funktion prüfen!
         suchfeld.connect_activate(clone!(
             @weak stack,
-            @weak such_grid, 
+            @weak such_grid,
             @weak clipboard, 
             @weak window,
-            @strong einstellungen_suchfeld, 
-            @strong emojies_daten_suchfeld => move |_| {
+            @strong einstellungen_suchfeld,
+            @strong emojies_daten_suchfeld
+            => move |_| {
 
             let stack_visible = stack.visible_child_name();
             let fenster_schliessen = einstellungen_suchfeld.fenster_schliessen.get();
 
             if stack_visible == Some("suche".into()) {
                 // Aktiv: Suchansicht → erstes Ergebnis aus Such-Grid nehmen
+                let mut emoji_kandidat = None;
                 let mut child = such_grid.first_child();
                 while let Some(widget) = child {
                     child = widget.next_sibling();
                     if let Some(button) = widget.downcast_ref::<Button>() {
                         if let Some(emoji) = button.label().map(|s| s.to_string()) {
-                            kopiere_und_schliesse(&emoji, &clipboard, &window, fenster_schliessen, &emoji_tabs::finde_begriffe(&emoji, &emojies_daten_suchfeld.borrow()));
+                            emoji_kandidat = Some(emoji);
                             break;
                         }
                     }
                 }
+
+                if let Some(emoji) = emoji_kandidat {
+                    emoji_tabs::speichere_kopiere_und_schliesse(
+                        &emoji,
+                        Rc::clone(&emojies_daten_suchfeld),
+                        None,
+                        Some(&clipboard),
+                        &window,
+                        fenster_schliessen,
+                    );
+                }
+
             } else {
                 // Kein Suchbegriff → Enter kopiert erstes Emoji aus history.list
-                if let Some((_, grid)) = emojies_daten_suchfeld.borrow().get("🕓") {
-                    let mut child = grid.first_child();
-                    while let Some(widget) = child {
-                        child = widget.next_sibling();
-                        if let Some(button) = widget.downcast_ref::<Button>() {
-                            if let Some(emoji) = button.label().map(|s| s.to_string()) {
-                                kopiere_und_schliesse(&emoji, &clipboard, &window, fenster_schliessen, &emoji_tabs::finde_begriffe(&emoji, &emojies_daten_suchfeld.borrow()));
-                                break;
+                let emoji_kandidat = emojies_daten_suchfeld
+                    .borrow()
+                    .get("🕓")
+                    .and_then(|(_, grid)| {
+                        let mut child = grid.first_child();
+                        while let Some(widget) = child {
+                            child = widget.next_sibling();
+                            if let Some(button) = widget.downcast_ref::<Button>() {
+                                if let Some(emoji) = button.label().map(|s| s.to_string()) {
+                                    return Some(emoji);
+                                }
                             }
                         }
-                    }
+                        None
+                    });
+                
+                if let Some(emoji) = emoji_kandidat {
+                    emoji_tabs::speichere_kopiere_und_schliesse(
+                        &emoji,
+                        Rc::clone(&emojies_daten_suchfeld),
+                        None,
+                        Some(&clipboard),
+                        &window,
+                        fenster_schliessen,
+                    );
                 }
             }
         }));
@@ -376,7 +461,7 @@ fn main() {
 // ██║     ╚██████╔╝██║ ╚████║╚██████╗   ██║   ██║╚██████╔╝██║ ╚████║
 // ╚═╝      ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
 
-fn kopiere_von_etc_falls_fehlend(dateiname: &str, sprachpaket: Rc<Sprache>, debug: &bool) {
+fn kopiere_von_etc_falls_fehlend(dateiname: &str, sprachpaket: Rc<Sprache>, _debug: &bool) {
     let ziel_pfad = dirs::config_dir()
         .unwrap_or_else(|| PathBuf::from("."))
         .join("emoji-picker")
@@ -402,36 +487,31 @@ fn kopiere_von_etc_falls_fehlend(dateiname: &str, sprachpaket: Rc<Sprache>, debu
         } else {
             println!("📁 {} /etc/emoji-picker: {}", sprachpaket.debug_main_list_copy_from_etc, dateiname);
         }
-    }else if dateiname == "history.list" && !ziel_pfad.exists() {
-        // 🆕 history.list erstellen wenn nicht schon vorhanden
-        let _ = std::fs::create_dir_all(ziel_pfad.parent().unwrap());
-        let _ = std::fs::write(&ziel_pfad, "");
-        if *debug {
-            println!("📁 {}: {}", sprachpaket.debug_main_list_new_history, dateiname);
-        }
     }
 
 }
 
-fn kopiere_und_schliesse(
-    emoji: &str,
-    clipboard: &Clipboard,
-    window: &ApplicationWindow,
-    schliessen: bool,
-    begriffe: &[String],
-) {
-    clipboard.set_text(emoji);
-    let zeile = format!("{} {}", emoji, begriffe.join(" "));
+fn neustart(window: Rc<ApplicationWindow>, sprachpaket: Rc<Sprache>) {
+    use std::os::unix::process::CommandExt;
+    use std::process::Command;
+    use std::env;
 
-    // History speichern
-    let mut pfad = dirs::config_dir().unwrap_or_else(|| PathBuf::from("."));
-    pfad.push("emoji-picker/history.list");
+    // Vollständigen Pfad zum aktuellen Binary holen
+    if let Ok(exe_path) = env::current_exe() {
+        // Versuch direkten Neustart
+        let _ = Command::new(exe_path)
+            .args(env::args().skip(1)) // übergibt etwaige Argumente weiter
+            .exec(); // ersetzt den aktuelle Prozess
 
-    if let Ok(mut file) = OpenOptions::new().create(true).append(true).open(pfad) {
-        let _ = writeln!(file, "{}", zeile);
-    }
+        // Falls exec() fehlschlägt: Meldung anzeigen
+        let dialog = gtk::MessageDialog::builder()
+            .transient_for(&*window)
+            .modal(true)
+            .message_type(gtk::MessageType::Info)
+            .buttons(gtk::ButtonsType::Ok)
+            .text(&sprachpaket.restart_after_change)
+            .build();
 
-    if schliessen {
-        window.close();
+        dialog.run_async(|dialog, _| dialog.close());
     }
 }

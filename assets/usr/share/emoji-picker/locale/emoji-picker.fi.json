@@ -21,11 +21,11 @@
   "label_language":          "Kieli:",
   "button_cancel":           "Peruuta",
   "button_ok":               "OK",
+  "restart_after_change":    "Käynnistä Emoji Picker uudelleen kielen vaihtamiseksi.",
   
   "debug_main_time_loading_language":      "Kielipaketti ladattu ajassa",
   "debug_main_list_fail_to_copy":          "Virhe kopioitaessa kohteesta",
   "debug_main_list_copy_from_etc":         "Päivitetty lähteestä",
-  "debug_main_list_new_history":           "Uusi historia luotu",
   "debug_main_time_css_loading":           "CSS-tiedosto ladattu ajassa",
   "debug_main_settings_infofenster":       "Seuraavat asetukset ladattiin infonäytölle",
   "debug_main_time_copy_from_etc":         "Kopiointi valmis ajassa",
@@ -39,6 +39,7 @@
   
   "debug_emoji_tabs_use_css":              "Käytetään CSS-tiedostoa",
   "debug_emoji_tabs_css_failure":          "CSS-tiedostoa ei löytynyt",
+  "debug_emoji_tabs_clear_history":        "Historia tyhjennettiin onnistuneesti" ,
   
   "debug_shortcut_set_info_window":        "Asetusnäyttö näytettiin ja tallennettiin tiedostoon settings.ini",
   "debug_shortcut_apply_gsettings_error":  "Virhe suoritettaessa komentoa",

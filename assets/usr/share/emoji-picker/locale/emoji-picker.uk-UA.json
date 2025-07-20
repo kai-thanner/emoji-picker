@@ -21,11 +21,11 @@
   "label_language":          "Мова:",
   "button_cancel":           "Скасувати",
   "button_ok":               "Ок",
+  "restart_after_change":    "Перезапустіть Emoji Picker, щоб застосувати мову.",
   
   "debug_main_time_loading_language":      "Мовний пакет завантажено за",
   "debug_main_list_fail_to_copy":          "Помилка копіювання з",
   "debug_main_list_copy_from_etc":         "Оновлено з",
-  "debug_main_list_new_history":           "Створено нову історію",
   "debug_main_time_css_loading":           "CSS-файл завантажено за",
   "debug_main_settings_infofenster":       "Завантажено налаштування для інформаційного вікна",
   "debug_main_time_copy_from_etc":         "Копіювання завершено за",
@@ -39,6 +39,7 @@
 
   "debug_emoji_tabs_use_css":              "Використовується CSS-файл",
   "debug_emoji_tabs_css_failure":          "CSS-файл не знайдено",
+  "debug_emoji_tabs_clear_history":        "Історію успішно очищено",
 
   "debug_shortcut_set_info_window":        "Налаштування показано та записано в settings.ini",
   "debug_shortcut_apply_gsettings_error":  "Помилка виклику",

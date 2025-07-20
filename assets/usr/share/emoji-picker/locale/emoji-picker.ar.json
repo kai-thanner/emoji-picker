@@ -21,11 +21,11 @@
   "label_language":          "اللغة:",
   "button_cancel":           "إلغاء",
   "button_ok":               "موافق",
+  "restart_after_change":    "يرجى إعادة تشغيل Emoji Picker لتفعيل اللغة.",
   
   "debug_main_time_loading_language":      "تم تحميل حزمة اللغة خلال",
   "debug_main_list_fail_to_copy":          "خطأ في النسخ من",
   "debug_main_list_copy_from_etc":         "تم التحديث من",
-  "debug_main_list_new_history":           "تم إنشاء سجل جديد",
   "debug_main_time_css_loading":           "تم تحميل ملف CSS خلال",
   "debug_main_settings_infofenster":       "تم تحميل الإعدادات لنافذة المعلومات",
   "debug_main_time_copy_from_etc":         "اكتملت عملية النسخ خلال",
@@ -39,6 +39,7 @@
 
   "debug_emoji_tabs_use_css":              "استخدام ملف CSS",
   "debug_emoji_tabs_css_failure":          "لم يتم العثور على ملف CSS",
+  "debug_emoji_tabs_clear_history":        "تم مسح السجل بنجاح",
 
   "debug_shortcut_set_info_window":        "تم عرض الإعداد وحفظه في settings.ini",
   "debug_shortcut_apply_gsettings_error":  "خطأ أثناء التنفيذ:",

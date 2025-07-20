@@ -27,11 +27,11 @@ pub struct Sprache {
 	pub label_language: String,
 	pub button_cancel: String,
 	pub button_ok: String,
+	pub restart_after_change: String,
 
 	pub debug_main_time_loading_language: String,
 	pub debug_main_list_fail_to_copy: String,
 	pub debug_main_list_copy_from_etc: String,
-	pub debug_main_list_new_history: String,
 	pub debug_main_time_css_loading: String,
 	pub debug_main_settings_infofenster: String,
 	pub debug_main_time_copy_from_etc: String,
@@ -45,6 +45,7 @@ pub struct Sprache {
 
 	pub debug_emoji_tabs_use_css: String,
 	pub debug_emoji_tabs_css_failure: String,
+	pub debug_emoji_tabs_clear_history: String,
 
 	pub debug_shortcut_set_info_window: String,
 	pub debug_shortcut_apply_gsettings_error: String,

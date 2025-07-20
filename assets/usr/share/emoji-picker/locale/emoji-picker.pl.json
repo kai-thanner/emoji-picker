@@ -21,11 +21,11 @@
   "label_language":          "Język:",
   "button_cancel":           "Anuluj",
   "button_ok":               "Ok",
+  "restart_after_change":    "Uruchom ponownie Emoji Picker, aby zastosować język.",
   
   "debug_main_time_loading_language":      "Pakiet językowy załadowany w",
   "debug_main_list_fail_to_copy":          "Błąd podczas kopiowania z",
   "debug_main_list_copy_from_etc":         "Zaktualizowano z",
-  "debug_main_list_new_history":           "Utworzono nową historię",
   "debug_main_time_css_loading":           "Plik CSS załadowany w",
   "debug_main_settings_infofenster":       "Załadowano ustawienia okna informacyjnego",
   "debug_main_time_copy_from_etc":         "Kopiowanie zakończone w",
@@ -39,6 +39,7 @@
 
   "debug_emoji_tabs_use_css":              "Użycie pliku CSS",
   "debug_emoji_tabs_css_failure":          "Nie znaleziono pliku CSS",
+  "debug_emoji_tabs_clear_history":        "Historia została pomyślnie wyczyszczona",
 
   "debug_shortcut_set_info_window":        "Ustawienia wyświetlone i zapisane w settings.ini",
   "debug_shortcut_apply_gsettings_error":  "Błąd podczas wywołania",
