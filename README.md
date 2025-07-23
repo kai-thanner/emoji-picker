@@ -26,12 +26,29 @@ Ein schneller, einfacher Emoji-Picker für Linux (GTK-basiert, in Rust geschrieb
 #### Optionsmenü
 ![Einstellungsfenster](screenshots/emoji-picker3.png)
 
-## 🌍 Unterstützte Sprachen
-* Englisch      -   english
-* Deutsch       -   german
-* Französisch   -   france
-* Spanisch      -   spain
-* Chinesisch    -   chinese
+## 🌎 Verfügbare Sprachen
+| 🗺️ Flagge | Code   | Sprache        |
+|-----------|--------|----------------|
+| 🇩🇪        | de     | Deutsch        |
+| 🇬🇧        | en-GB  | Englisch (UK)  |
+| 🇺🇸        | en-US  | Englisch (US)  |
+| 🇫🇷        | fr     | Französisch    |
+| 🇪🇸        | es     | Spanisch       |
+| 🇮🇹        | it     | Italienisch    |
+| 🇳🇱        | nl     | Niederländisch |
+| 🇵🇹        | pt     | Portugiesisch  |
+| 🇧🇷        | pt-BR  | Portugiesisch (BR) |
+| 🇩🇰        | da     | Dänisch        |
+| 🇸🇪        | sv     | Schwedisch     |
+| 🇳🇴        | nb     | Norwegisch     |
+| 🇫🇮        | fi     | Finnisch       |
+| 🇵🇱        | pl     | Polnisch       |
+| 🇺🇦        | uk     | Ukrainisch     |
+| 🇷🇺        | ru     | Russisch       |
+| 🇹🇷        | tr     | Türkisch       |
+| 🇯🇵        | ja     | Japanisch      |
+| 🇨🇳        | zh     | Chinesisch     |
+| 🇸🇦        | ar     | Arabisch       |
 
 ## 🔧 Installation
 ### .deb-Paket (empfohlen für Debian, Mint, Tuxedo, Ubuntu):
@@ -84,30 +101,6 @@ Die Werte lassen sich direkt in der Datei oder über das Einstellungsmenü ände
   🔹 Per Drag & Drop kannst du Emojis auch direkt in andere Programme ziehen.
 #### 💡 Bonus-Tipp
 Wenn du Drag & Drop nutzt, kannst du im Einstellungsfenster festlegen, ob das Picker-Fenster dabei offen bleiben soll.
-
-## 🌎 Verfügbare Sprachen
-| 🗺️ Flagge | Code   | Sprache        |
-|-----------|--------|----------------|
-| 🇩🇪        | de     | Deutsch        |
-| 🇬🇧        | en-GB  | Englisch (UK)  |
-| 🇺🇸        | en-US  | Englisch (US)  |
-| 🇫🇷        | fr     | Französisch    |
-| 🇪🇸        | es     | Spanisch       |
-| 🇮🇹        | it     | Italienisch    |
-| 🇳🇱        | nl     | Niederländisch |
-| 🇵🇹        | pt     | Portugiesisch  |
-| 🇧🇷        | pt-BR  | Portugiesisch (BR) |
-| 🇩🇰        | da     | Dänisch        |
-| 🇸🇪        | sv     | Schwedisch     |
-| 🇳🇴        | nb     | Norwegisch     |
-| 🇫🇮        | fi     | Finnisch       |
-| 🇵🇱        | pl     | Polnisch       |
-| 🇺🇦        | uk     | Ukrainisch     |
-| 🇷🇺        | ru     | Russisch       |
-| 🇹🇷        | tr     | Türkisch       |
-| 🇯🇵        | ja     | Japanisch      |
-| 🇨🇳        | zh     | Chinesisch     |
-| 🇸🇦        | ar     | Arabisch       |
 
 ## 📂 Speicherorte
 | Datei/Ordner                                             | Beschreibung                    |
